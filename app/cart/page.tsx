@@ -79,7 +79,7 @@ export default function CartPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="border-slate-500 text-white hover:bg-slate-600"
+                          className="border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white"
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
@@ -93,7 +93,7 @@ export default function CartPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="border-slate-500 text-white hover:bg-slate-600"
+                          className="border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white"
                         >
                           <Plus className="h-4 w-4" />
                         </Button>

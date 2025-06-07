@@ -48,11 +48,19 @@ export default function ProductsPage() {
             </div>
           </div>
           {/* Product images in header */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between opacity-30">
-            <Image src="/placeholder.svg?height=80&width=80" alt="Product" width={80} height={80} className="rounded" />
-            <Image src="/placeholder.svg?height=80&width=80" alt="Product" width={80} height={80} className="rounded" />
-            <Image src="/placeholder.svg?height=80&width=80" alt="Product" width={80} height={80} className="rounded" />
-            <Image src="/placeholder.svg?height=80&width=80" alt="Product" width={80} height={80} className="rounded" />
+          <div className="absolute top-4 left-4 right-4 flex justify-between opacity-50">
+            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">Sepatu 1</span>
+            </div>
+            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">Sepatu 2</span>
+            </div>
+            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">Sepatu 3</span>
+            </div>
+            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+              <span className="text-white text-xs">Sepatu 4</span>
+            </div>
           </div>
         </div>
 
