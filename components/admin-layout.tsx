@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Users, UserCog, ShoppingCart, Package, BarChart3, LogOut, Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -32,11 +33,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="fixed left-0 top-0 h-full w-64 bg-slate-900 p-4">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-                <span className="text-white font-bold text-sm">26</span>
-              </div>
-              <span className="text-white font-semibold">STORE</span>
+              <Image src="/icon.png" alt="logo" width={128} height={32}/>
             </div>
+            
             <Button
               variant="ghost"
               size="sm"
@@ -70,12 +69,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64 lg:bg-slate-900 lg:px-4 lg:py-6">
-        <div className="flex items-center space-x-2 mb-8">
-          <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center">
-            <span className="text-white font-bold text-sm">26</span>
-          </div>
-          <span className="text-white font-semibold">STORE</span>
-        </div>
+      <div className="flex items-center space-x-2">
+              <Image src="/icon.png" alt="logo" width={128} height={32}/>
+            </div>
         <nav className="space-y-2">
           {navigation.map((item) => {
             const Icon = item.icon
