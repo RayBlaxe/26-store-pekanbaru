@@ -9,8 +9,8 @@ import { Package, Truck, CheckCircle, Clock } from "lucide-react"
 const orderStatuses = [
   { id: 1, label: "Dikonfirmasi", completed: true, icon: CheckCircle },
   { id: 2, label: "Diproses", completed: true, icon: Package },
-  { id: 3, label: "Dikirim", completed: true, icon: Truck },
-  { id: 4, label: "Diserahkan", completed: false, icon: CheckCircle },
+  { id: 3, label: "Dalam Pengiriman", completed: true, icon: Truck },
+  { id: 4, label: "Diterima", completed: false, icon: CheckCircle },
 ]
 
 export default function OrdersPage() {
@@ -29,34 +29,18 @@ export default function OrdersPage() {
           {/* Header with product images */}
           <div className="flex justify-center mb-8">
             <div className="flex space-x-4">
-              <Image
-                src="/placeholder.svg?height=80&width=80"
-                alt="Product"
-                width={80}
-                height={80}
-                className="rounded"
-              />
-              <Image
-                src="/placeholder.svg?height=80&width=80"
-                alt="Product"
-                width={80}
-                height={80}
-                className="rounded"
-              />
-              <Image
-                src="/placeholder.svg?height=80&width=80"
-                alt="Product"
-                width={80}
-                height={80}
-                className="rounded"
-              />
-              <Image
-                src="/placeholder.svg?height=80&width=80"
-                alt="Product"
-                width={80}
-                height={80}
-                className="rounded"
-              />
+              <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Sepatu 1</span>
+              </div>
+              <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Sepatu 2</span>
+              </div>
+              <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Sepatu 3</span>
+              </div>
+              <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
+                <span className="text-white text-xs">Sepatu 4</span>
+              </div>
             </div>
           </div>
 
@@ -91,17 +75,7 @@ export default function OrdersPage() {
                 })}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Order Status Buttons */}
-                <div className="space-y-2">
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">Dikonfirmasi</Button>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">Diproses</Button>
-                  <Button className="w-full bg-yellow-600 hover:bg-yellow-700 text-white">Dikirim</Button>
-                  <Button className="w-full bg-gray-600 hover:bg-gray-700 text-white" disabled>
-                    Diserahkan
-                  </Button>
-                </div>
-
+              <div className="grid grid-cols-1 gap-6">
                 {/* Order Details */}
                 <div className="bg-slate-600 p-4 rounded-lg">
                   <h4 className="text-white font-semibold mb-3">Detail Pesanan</h4>
@@ -147,7 +121,7 @@ export default function OrdersPage() {
 
           {/* Additional Order Actions */}
           <div className="flex justify-center space-x-4">
-            <Button variant="outline" className="border-slate-500 text-white hover:bg-slate-600">
+            <Button variant="outline" className="border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white">
               Hubungi Penjual
             </Button>
             <Button className="bg-red-600 hover:bg-red-700 text-white">Batalkan Pesanan</Button>

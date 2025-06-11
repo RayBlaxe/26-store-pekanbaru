@@ -15,7 +15,7 @@ interface CustomerLayoutProps {
 }
 
 const navigation = [
-  { name: "Produk", href: "/products" },
+  { name: "Beranda", href: "/" },
   { name: "Keranjang", href: "/cart" },
   { name: "Pesanan", href: "/orders" },
   { name: "Profil", href: "/profile" },
