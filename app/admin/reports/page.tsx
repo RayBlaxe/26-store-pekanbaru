@@ -53,7 +53,7 @@ export default function ReportsPage() {
   const [status, setStatus] = useState("")
 
   return (
-    <AdminLayout>
+    
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -138,6 +138,6 @@ export default function ReportsPage() {
           </Table>
         </div>
       </div>
-    </AdminLayout>
+    
   )
 }
