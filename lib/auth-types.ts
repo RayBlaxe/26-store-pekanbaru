@@ -1,35 +1,34 @@
 export interface User {
   id: string
-  email: string
   name: string
-  role: 'admin' | 'customer'
-  avatar?: string
-  createdAt: Date
-  updatedAt: Date
+  email: string
+  created_at: string
+  updated_at: string
 }
 
 export interface AuthState {
   user: User | null
+  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
   error: string | null
 }
 
-export interface LoginCredentials {
+export interface LoginRequest {
   email: string
   password: string
 }
 
-export interface RegisterCredentials {
+export interface RegisterRequest {
+  name: string
   email: string
   password: string
-  name: string
-  confirmPassword: string
+  password_confirmation: string
 }
 
 export interface AuthContextType extends AuthState {
-  login: (credentials: LoginCredentials) => Promise<void>
-  register: (credentials: RegisterCredentials) => Promise<void>
+  login: (credentials: LoginRequest) => Promise<void>
+  register: (credentials: RegisterRequest) => Promise<void>
   logout: () => void
   clearError: () => void
 }
@@ -37,9 +36,10 @@ export interface AuthContextType extends AuthState {
 export interface AuthResponse {
   user: User
   token: string
+  message: string
 }
 
 export interface AuthError {
   message: string
-  code: string
+  errors?: Record<string, string[]>
 }

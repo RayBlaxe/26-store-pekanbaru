@@ -1,139 +1,88 @@
-import { LoginCredentials, RegisterCredentials, AuthResponse, User } from './auth-types'
+import axios from 'axios'
+import Cookies from 'js-cookie'
+import { AuthResponse, LoginRequest, RegisterRequest, User } from './auth-types'
 
-// Mock users for development
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'admin@26store.com',
-    name: 'Admin User',
-    role: 'admin',
-    avatar: '/placeholder.svg',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+
+const api = axios.create({
+  baseURL: API_URL,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
   },
-  {
-    id: '2',
-    email: 'customer@example.com',
-    name: 'Customer User',
-    role: 'customer',
-    avatar: '/placeholder.svg',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+})
+
+api.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('auth-token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
   },
-]
+  (error) => Promise.reject(error)
+)
 
-export class AuthService {
-  private static readonly TOKEN_KEY = 'auth_token'
-  private static readonly USER_KEY = 'auth_user'
-
-  static async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    const user = mockUsers.find(u => u.email === credentials.email)
-    if (!user || credentials.password !== 'password') {
-      throw new Error('Invalid credentials')
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      Cookies.remove('auth-token')
+      window.location.href = '/login'
     }
-
-    const token = this.generateMockToken(user)
-    this.setToken(token)
-    this.setUser(user)
-
-    return { user, token }
+    return Promise.reject(error)
   }
+)
 
-  static async register(credentials: RegisterCredentials): Promise<AuthResponse> {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    if (credentials.password !== credentials.confirmPassword) {
-      throw new Error('Passwords do not match')
-    }
-
-    const existingUser = mockUsers.find(u => u.email === credentials.email)
-    if (existingUser) {
-      throw new Error('User already exists')
-    }
-
-    const newUser: User = {
-      id: Date.now().toString(),
-      email: credentials.email,
-      name: credentials.name,
-      role: 'customer',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }
-
-    mockUsers.push(newUser)
-
-    const token = this.generateMockToken(newUser)
-    this.setToken(token)
-    this.setUser(newUser)
-
-    return { user: newUser, token }
-  }
-
-  static logout(): void {
-    this.removeToken()
-    this.removeUser()
-  }
-
-  static getToken(): string | null {
-    if (typeof window === 'undefined') return null
-    return localStorage.getItem(this.TOKEN_KEY)
-  }
-
-  static setToken(token: string): void {
-    if (typeof window === 'undefined') return
-    localStorage.setItem(this.TOKEN_KEY, token)
-  }
-
-  static removeToken(): void {
-    if (typeof window === 'undefined') return
-    localStorage.removeItem(this.TOKEN_KEY)
-  }
-
-  static getUser(): User | null {
-    if (typeof window === 'undefined') return null
-    const userStr = localStorage.getItem(this.USER_KEY)
-    if (!userStr) return null
+export const authService = {
+  async login(credentials: LoginRequest): Promise<AuthResponse> {
+    const response = await api.post('/login', credentials)
+    const { user, token } = response.data
     
+    Cookies.set('auth-token', token, { 
+      expires: 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+    
+    return response.data
+  },
+
+  async register(credentials: RegisterRequest): Promise<AuthResponse> {
+    const response = await api.post('/register', credentials)
+    const { user, token } = response.data
+    
+    Cookies.set('auth-token', token, { 
+      expires: 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+    
+    return response.data
+  },
+
+  async logout(): Promise<void> {
     try {
-      return JSON.parse(userStr)
-    } catch {
-      return null
+      await api.post('/logout')
+    } catch (error) {
+      console.error('Logout error:', error)
+    } finally {
+      Cookies.remove('auth-token')
     }
-  }
+  },
 
-  static setUser(user: User): void {
-    if (typeof window === 'undefined') return
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user))
-  }
+  async getUser(): Promise<User> {
+    const response = await api.get('/user')
+    return response.data
+  },
 
-  static removeUser(): void {
-    if (typeof window === 'undefined') return
-    localStorage.removeItem(this.USER_KEY)
-  }
+  getToken(): string | undefined {
+    return Cookies.get('auth-token')
+  },
 
-  static isAuthenticated(): boolean {
-    return !!this.getToken() && !!this.getUser()
-  }
-
-  static async validateToken(): Promise<User | null> {
-    const token = this.getToken()
-    if (!token) return null
-
-    try {
-      // Simulate token validation
-      await new Promise(resolve => setTimeout(resolve, 500))
-      return this.getUser()
-    } catch {
-      this.logout()
-      return null
-    }
-  }
-
-  private static generateMockToken(user: User): string {
-    return btoa(JSON.stringify({ userId: user.id, exp: Date.now() + 86400000 }))
-  }
+  isAuthenticated(): boolean {
+    return !!this.getToken()
+  },
 }
+
+export default api

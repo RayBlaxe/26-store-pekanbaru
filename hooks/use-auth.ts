@@ -1,8 +1,29 @@
 'use client'
 
-import { useAuth } from '@/contexts/auth-context'
+import { useAuthStore } from '@/stores/auth-store'
+import { useEffect } from 'react'
 
-export { useAuth }
+export const useAuth = () => {
+  const store = useAuthStore()
+  
+  useEffect(() => {
+    if (!store.isAuthenticated && !store.isLoading) {
+      store.fetchUser()
+    }
+  }, [store.isAuthenticated, store.isLoading])
+
+  return {
+    user: store.user,
+    token: store.token,
+    isAuthenticated: store.isAuthenticated,
+    isLoading: store.isLoading,
+    error: store.error,
+    login: store.login,
+    register: store.register,
+    logout: store.logout,
+    clearError: store.clearError,
+  }
+}
 
 export const useAuthGuard = () => {
   const { isAuthenticated, user, isLoading } = useAuth()
@@ -11,7 +32,5 @@ export const useAuthGuard = () => {
     isAuthenticated,
     user,
     isLoading,
-    isAdmin: user?.role === 'admin',
-    isCustomer: user?.role === 'customer',
   }
 }

@@ -5,10 +5,13 @@ import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { User, Menu, X, Search } from "lucide-react";
+import { User, Menu, X, Search, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/use-auth";
 import Image from "next/image";
 
 interface CustomerLayoutProps {
@@ -25,6 +28,11 @@ const navigation = [
 export default function CustomerLayout({ children }: CustomerLayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
 
   return (
     <div className="min-h-screen bg-slate-800">
@@ -69,13 +77,47 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                   className="pl-10 w-64 bg-slate-800 border-slate-600 text-white placeholder-gray-400"
                 />
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-white hover:bg-slate-800"
-              >
-                <User className="h-4 w-4" />
-              </Button>
+              
+              {isAuthenticated ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="text-white hover:bg-slate-800">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback className="bg-slate-700">
+                          {user?.name?.charAt(0).toUpperCase() || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard" className="w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="w-full">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleLogout}>
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <Button asChild variant="ghost" size="sm" className="text-white hover:bg-slate-800">
+                    <Link href="/login">Login</Link>
+                  </Button>
+                  <Button asChild size="sm" className="bg-blue-600 hover:bg-blue-700">
+                    <Link href="/register">Register</Link>
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Mobile menu button */}
