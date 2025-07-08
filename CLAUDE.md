@@ -97,3 +97,4 @@ This project is managed through v0.dev:
 4. Vercel deploys from repository
 
 When working locally, be aware that changes may be overwritten by v0.dev syncing.
+
