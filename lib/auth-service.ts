@@ -28,7 +28,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       Cookies.remove('auth-token')
-      window.location.href = '/login'
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
@@ -37,7 +39,7 @@ api.interceptors.response.use(
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post('/login', credentials)
-    const { user, token } = response.data
+    const { token } = response.data
     
     Cookies.set('auth-token', token, { 
       expires: 7, // 7 days
@@ -50,7 +52,7 @@ export const authService = {
 
   async register(credentials: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post('/register', credentials)
-    const { user, token } = response.data
+    const { token } = response.data
     
     Cookies.set('auth-token', token, { 
       expires: 7, // 7 days

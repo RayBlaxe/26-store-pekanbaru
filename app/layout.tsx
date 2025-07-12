@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AuthProvider } from "@/components/providers/auth-provider";
-import { QueryProvider } from "@/components/providers/query-provider";
-import { Toaster } from "sonner";
+import { Providers } from "@/components/providers/providers";
 
 export const metadata: Metadata = {
   title: "26 Store Pekanbaru - E-Commerce Olahraga",
@@ -18,12 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>
-          <AuthProvider>
-            {children}
-            <Toaster />
-          </AuthProvider>
-        </QueryProvider>
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
