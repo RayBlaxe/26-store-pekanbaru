@@ -36,7 +36,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-screen bg-slate-800">
+    <div className="min-h-screen bg-background">
       {/* Mobile sidebar */}
       <div
         className={`fixed inset-0 z-50 lg:hidden ${
@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           className="fixed inset-0 bg-black/50"
           onClick={() => setSidebarOpen(false)}
         />
-        <div className="fixed left-0 top-0 h-full w-64 bg-slate-900 p-4">
+        <div className="fixed left-0 top-0 h-full w-64 bg-secondary p-4">
           <div className="flex items-center justify-between mb-8">
             <div className="flex items-center space-x-2">
               <Image src="/icon.png" alt="logo" width={128} height={32} />
@@ -57,7 +57,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(false)}
-              className="text-white hover:bg-slate-800"
+              className="text-foreground hover:bg-accent"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -72,8 +72,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                   href={item.href}
                   className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-blue-600 text-white"
-                      : "text-gray-300 hover:bg-slate-800 hover:text-white"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   }`}
                   onClick={() => setSidebarOpen(false)}
                 >
@@ -87,7 +87,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64 lg:bg-slate-900 lg:px-4 lg:py-6">
+      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64 bg-secondary lg:px-4 lg:py-6">
         <div className="flex items-center space-x-2">
           <Image src="/icon.png" alt="logo" width={128} height={32} />
         </div>
@@ -101,8 +101,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 href={item.href}
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-blue-600 text-white"
-                    : "text-gray-300 hover:bg-slate-800 hover:text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -114,7 +114,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="absolute bottom-6 left-4 right-4">
           <Button
             variant="ghost"
-            className="w-full justify-start text-gray-300 hover:bg-slate-800 hover:text-white"
+            className="w-full justify-start text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <LogOut className="h-4 w-4 mr-3" />
             Logout
@@ -125,18 +125,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main content */}
       <div className="lg:pl-64">
         {/* Top bar */}
-        <div className="flex items-center justify-between bg-slate-700 px-4 py-3 lg:px-6">
+        <div className="flex items-center justify-between bg-secondary px-4 py-3 lg:px-6">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setSidebarOpen(true)}
-            className="text-white hover:bg-slate-600 lg:hidden"
+            className="text-foreground hover:bg-accent lg:hidden"
           >
             <Menu className="h-4 w-4" />
           </Button>
           <div className="flex items-center space-x-4 ml-auto">
-            <span className="text-white text-sm">Hi, Admin!</span>
-            <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
+            <span className="text-foreground text-sm">Hi, Admin!</span>
+            <div className="w-8 h-8 bg-muted rounded-full"></div>
           </div>
         </div>
 

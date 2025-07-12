@@ -39,6 +39,8 @@ The app follows a dual-interface pattern:
 
 ## Development Commands
 
+use bun as a package manager
+
 ```bash
 # Development
 npm run dev          # Start dev server with turbo mode

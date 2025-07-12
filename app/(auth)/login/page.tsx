@@ -48,14 +48,14 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
-          <CardDescription className="text-center">
+          <CardTitle className="text-2xl font-bold text-center text-gray-900">Sign In</CardTitle>
+          <CardDescription className="text-center text-gray-600">
             Enter your email and password to access your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-8">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -99,7 +99,7 @@ export default function LoginPage() {
               )}
               <Button 
                 type="submit" 
-                className="w-full" 
+                className="w-full bg-blue-600 hover:bg-blue-700" 
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? (
@@ -115,7 +115,7 @@ export default function LoginPage() {
           </Form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:underline">
+            <Link href="/register" className="text-blue-600 hover:text-blue-700 hover:underline">
               Sign up
             </Link>
           </div>

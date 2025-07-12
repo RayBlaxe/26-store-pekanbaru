@@ -5,36 +5,34 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
-import { ShoppingCart, Star } from "lucide-react"
-
-const products = [
-  {
-    id: 1,
-    name: "Sepatu X",
-    price: "Rp. 500.000",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.5,
-    inStock: true,
-  },
-  {
-    id: 2,
-    name: "Sepatu X",
-    price: "Rp. 500.000",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.3,
-    inStock: true,
-  },
-  {
-    id: 3,
-    name: "Sepatu X",
-    price: "Rp. 500.000",
-    image: "/placeholder.svg?height=200&width=200",
-    rating: 4.7,
-    inStock: true,
-  },
-]
+import { ShoppingCart, Star, ArrowRight } from "lucide-react"
+import { useQuery } from '@tanstack/react-query'
+import { productService } from '@/services/product.service'
+import { useCartStore } from '@/stores/cart.store'
+import { formatPrice } from '@/lib/utils'
+import { toast } from 'sonner'
+import Link from 'next/link'
 
 export default function HomePage() {
+  const { addProductToCart } = useCartStore()
+  
+  // Fetch featured products (limit to 6 for homepage)
+  const { data: productsData, isLoading, error } = useQuery({
+    queryKey: ['homepage-products'],
+    queryFn: () => productService.getProducts({ page: 1, per_page: 6 }),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  })
+
+  const handleAddToCart = async (product: any) => {
+    try {
+      await addProductToCart(product.id, 1)
+    } catch (error) {
+      // Error handling is already done in the store
+    }
+  }
+
+  const products = productsData?.data || []
+
   return (
     <CustomerLayout>
       <div className="min-h-screen">
@@ -47,62 +45,88 @@ export default function HomePage() {
               <p className="text-xl md:text-2xl">Temukan koleksi sepatu terbaik untuk gaya hidup aktif Anda</p>
             </div>
           </div>
-          {/* Product images in header */}
-          <div className="absolute top-4 left-4 right-4 flex justify-between opacity-50">
-            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">Sepatu 1</span>
-            </div>
-            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">Sepatu 2</span>
-            </div>
-            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">Sepatu 3</span>
-            </div>
-            <div className="w-20 h-20 bg-slate-600 rounded-lg flex items-center justify-center">
-              <span className="text-white text-xs">Sepatu 4</span>
-            </div>
-          </div>
         </div>
 
         {/* Products Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-2">Koleksi Mengagumkan Sepatu Produk Hit</h2>
+          <div className="mb-8 flex justify-between items-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Koleksi Produk Terbaru</h2>
+            <Link href="/products">
+              <Button variant="outline" className="flex items-center gap-2">
+                Lihat Semua Produk
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {products.map((product) => (
-              <Card key={product.id} className="bg-slate-700 border-slate-600 overflow-hidden">
-                <div className="aspect-square relative bg-black rounded-t-lg">
-                  <Image src={product.image || "/placeholder.svg"} alt={product.name} fill className="object-cover" />
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="text-white font-semibold text-lg mb-2">{product.name}</h3>
-                  <div className="flex items-center mb-2">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < Math.floor(product.rating) ? "text-yellow-400 fill-current" : "text-gray-400"
-                          }`}
-                        />
-                      ))}
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Card key={i} className="overflow-hidden animate-pulse">
+                  <div className="aspect-square bg-gray-200" />
+                  <CardContent className="p-4">
+                    <div className="h-4 bg-gray-200 rounded mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+                    <div className="h-4 bg-gray-200 rounded w-1/2" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Gagal memuat produk. Silakan coba lagi nanti.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {products.map((product) => (
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-square relative bg-gray-100">
+                    <Image 
+                      src={product.image || "/placeholder.svg"} 
+                      alt={product.name} 
+                      fill 
+                      className="object-cover"
+                    />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold text-lg mb-2 line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center mb-2">
+                      <div className="flex items-center">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-4 w-4 ${
+                              i < Math.floor(product.rating || 0) ? "text-yellow-400 fill-current" : "text-gray-400"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-gray-500 text-sm ml-2">({product.rating || 0})</span>
                     </div>
-                    <span className="text-gray-400 text-sm ml-2">({product.rating})</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-white font-bold text-lg">{product.price}</span>
-                    {product.inStock && <Badge className="bg-green-600 text-white">Tersedia</Badge>}
-                  </div>
-                  <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
-                    <ShoppingCart className="h-4 w-4 mr-2" />
-                    Masukkan Keranjang
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-lg">{formatPrice(product.price)}</span>
+                      {product.stock > 0 && <Badge className="bg-green-600 text-white">Tersedia</Badge>}
+                    </div>
+                    <div className="flex gap-2">
+                      <Link href={`/products/${product.id}`} className="flex-1">
+                        <Button variant="outline" className="w-full">
+                          Lihat Detail
+                        </Button>
+                      </Link>
+                      <Button 
+                        className="flex-1 bg-blue-600 hover:bg-blue-700"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={product.stock === 0}
+                      >
+                        <ShoppingCart className="h-4 w-4 mr-2" />
+                        Beli
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </CustomerLayout>
