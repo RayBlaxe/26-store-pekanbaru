@@ -46,12 +46,20 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
     }
   }
 
+  // Get the first image from the images array, fallback to image property or placeholder
+  const getProductImage = () => {
+    if (product.images && product.images.length > 0) {
+      return product.images[0]
+    }
+    return product.image || '/placeholder.jpg'
+  }
+
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200">
       <CardContent className="p-0">
         <div className="relative aspect-square overflow-hidden rounded-t-lg">
           <Image
-            src={product.image || '/placeholder.jpg'}
+            src={getProductImage()}
             alt={product.name}
             fill
             className="object-cover transition-transform duration-200 group-hover:scale-105"
@@ -89,7 +97,7 @@ export function ProductCard({ product, onViewDetails }: ProductCardProps) {
           
           <div className="flex items-center justify-between mb-2">
             <span className="font-bold text-lg">
-              {formatPrice(product.price)}
+              {product.formatted_price || formatPrice(parseFloat(product.price))}
             </span>
             
             {product.rating && (

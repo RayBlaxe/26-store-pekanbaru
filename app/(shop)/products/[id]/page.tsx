@@ -63,6 +63,14 @@ export default function ProductDetailPage() {
     window.history.back()
   }
 
+  // Get the first image from the images array, fallback to image property or placeholder
+  const getProductImage = () => {
+    if (product?.images && product.images.length > 0) {
+      return product.images[0]
+    }
+    return product?.image || '/placeholder.jpg'
+  }
+
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -116,7 +124,7 @@ export default function ProductDetailPage() {
         <div className="space-y-4">
           <div className="relative aspect-square overflow-hidden rounded-lg border">
             <Image
-              src={product.image || '/placeholder.jpg'}
+              src={getProductImage()}
               alt={product.name}
               fill
               className="object-cover"
@@ -165,7 +173,7 @@ export default function ProductDetailPage() {
 
           <div>
             <p className="text-3xl font-bold text-primary mb-2">
-              {formatPrice(product.price)}
+              {product.formatted_price || formatPrice(parseFloat(product.price))}
             </p>
             <p className="text-sm text-muted-foreground">
               Stock: {product.stock} available

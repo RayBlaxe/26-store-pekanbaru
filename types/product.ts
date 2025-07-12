@@ -1,14 +1,21 @@
 export interface Product {
   id: number;
   name: string;
-  price: number;
-  image: string;
+  slug: string;
+  price: string;
+  formatted_price: string;
+  image?: string;
+  images?: string[];
   description?: string;
   category_id: number;
   category?: Category;
   stock: number;
   rating?: number;
   in_stock: boolean;
+  sku: string;
+  weight: string;
+  is_active: boolean;
+  views: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -16,8 +23,10 @@ export interface Product {
 export interface Category {
   id: number;
   name: string;
+  slug: string;
   description?: string;
   image?: string;
+  is_active: boolean;
   created_at?: string;
   updated_at?: string;
 }

@@ -2,8 +2,8 @@ import api from '@/lib/auth-service'
 import { Product, ProductsResponse, Category, CategoriesResponse, ProductFilters } from '@/types/product'
 import { mockProductService } from './mock-product.service'
 
-// Use mock service in development or when API is not available
-const USE_MOCK_SERVICE = process.env.NODE_ENV === 'development' || !process.env.NEXT_PUBLIC_API_URL
+// Use mock service only when API is not available
+const USE_MOCK_SERVICE = !process.env.NEXT_PUBLIC_API_URL
 
 export const productService = {
   async getProducts(filters: ProductFilters = {}): Promise<ProductsResponse> {

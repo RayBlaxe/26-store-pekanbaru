@@ -39,11 +39,19 @@ export function CartItem({ item }: CartItemProps) {
     }
   }
 
+  // Get the first image from the images array, fallback to image property or placeholder
+  const getProductImage = () => {
+    if (item.product.images && item.product.images.length > 0) {
+      return item.product.images[0]
+    }
+    return item.product.image || '/placeholder.jpg'
+  }
+
   return (
     <div className="flex items-center gap-4 py-4 border-b">
       <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md">
         <Image
-          src={item.product.image || '/placeholder.jpg'}
+          src={getProductImage()}
           alt={item.product.name}
           fill
           className="object-cover"
@@ -56,7 +64,7 @@ export function CartItem({ item }: CartItemProps) {
           {item.product.name}
         </h3>
         <p className="text-sm text-muted-foreground">
-          {formatPrice(item.product.price)}
+          {item.product.formatted_price || formatPrice(parseFloat(item.product.price))}
         </p>
       </div>
       
