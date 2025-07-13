@@ -33,6 +33,7 @@ import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 import Image from "next/image"
 
+
 export default function OrderDetailsPage() {
   const router = useRouter()
   const params = useParams()
@@ -44,6 +45,7 @@ export default function OrderDetailsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [isProcessingPayment, setIsProcessingPayment] = useState(false)
+  const [paymentProcessed, setPaymentProcessed] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -58,6 +60,55 @@ export default function OrderDetailsPage() {
 
     loadOrder()
   }, [isAuthenticated, orderId, router])
+
+  // Check for payment success parameters (client-side only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return // Skip on server-side
+    
+    const urlParams = new URLSearchParams(window.location.search)
+    const statusCode = urlParams.get('status_code')
+    const transactionStatus = urlParams.get('transaction_status')
+    
+    console.log('Checking payment success params:', {
+      statusCode,
+      transactionStatus,
+      paymentProcessed
+    })
+    
+    if (statusCode === '200' && transactionStatus === 'settlement' && !paymentProcessed) {
+      console.log('Payment success detected! Updating order status...')
+      setPaymentProcessed(true)
+      toast.success('Pembayaran berhasil! Status pesanan sedang diperbarui.')
+      
+      // Clean up URL parameters immediately
+      const cleanUrl = window.location.pathname
+      window.history.replaceState(null, '', cleanUrl)
+      
+      // Wait for order to load first, then update status
+      if (order) {
+        handlePaymentSuccess()
+      }
+    }
+  }, [order, paymentProcessed]) // Trigger when order data loads
+
+  const handlePaymentSuccess = async () => {
+    console.log('handlePaymentSuccess called for order:', orderId)
+    try {
+      // Update order status to processing since payment is successful
+      console.log('Updating order status to processing...')
+      const result = await orderService.updateOrderStatus(parseInt(orderId), 'processing')
+      console.log('Order status update result:', result)
+      
+      // Reload order data to reflect the updated status
+      console.log('Reloading order data...')
+      await loadOrder(true)
+      
+      toast.success('Status pesanan telah diperbarui - Pesanan sedang diproses!')
+    } catch (error: any) {
+      console.error('Failed to update order status:', error)
+      toast.error('Gagal memperbarui status pesanan. Silakan refresh halaman.')
+    }
+  }
 
   const loadOrder = async (refresh = false) => {
     try {

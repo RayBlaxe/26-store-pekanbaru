@@ -272,12 +272,23 @@ export const mockOrderService = {
       throw new Error('Order not found')
     }
     
-    mockOrders[orderIndex] = {
-      ...mockOrders[orderIndex],
+    // When updating to 'processing', also update payment status to 'paid' 
+    // since this indicates successful payment
+    const updateData: Partial<Order> = {
       status: status as any,
       updated_at: new Date().toISOString()
     }
     
+    if (status === 'processing' && mockOrders[orderIndex].payment_status === 'pending') {
+      updateData.payment_status = 'paid'
+    }
+    
+    mockOrders[orderIndex] = {
+      ...mockOrders[orderIndex],
+      ...updateData
+    }
+    
+    console.log(`Updated order ${orderId} status to ${status}, payment_status: ${mockOrders[orderIndex].payment_status}`)
     return { data: mockOrders[orderIndex] }
   },
 

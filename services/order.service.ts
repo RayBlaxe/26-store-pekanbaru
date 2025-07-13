@@ -136,11 +136,23 @@ export const orderService = {
     }
     
     try {
+      console.log('Attempting to update order status:', { orderId, status })
       const response = await api.patch(`/orders/${orderId}/status`, { status })
+      console.log('Order status update response:', response.data)
       return response.data
-    } catch (error) {
-      console.warn('API call failed, falling back to mock service:', error)
-      return mockOrderService.updateOrderStatus(orderId, status)
+    } catch (error: any) {
+      console.warn('API call failed, falling back to mock service:', error.response?.status, error.message)
+      
+      // For this specific case where the backend doesn't have the endpoint yet,
+      // always fall back to mock service
+      try {
+        const result = await mockOrderService.updateOrderStatus(orderId, status)
+        console.log('Successfully updated order status using mock service:', result)
+        return result
+      } catch (mockError: any) {
+        console.error('Mock service also failed:', mockError)
+        throw new Error(`Failed to update order status: ${mockError.message}`)
+      }
     }
   },
 
