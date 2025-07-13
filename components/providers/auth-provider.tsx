@@ -10,11 +10,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const auth = useAuth()
 
   useEffect(() => {
-    if (!auth.isAuthenticated && !auth.isLoading) {
-      // Auto-fetch user on app start if token exists
+    // Only fetch user if there's a token but user is not authenticated
+    const token = auth.token || (typeof window !== 'undefined' ? document.cookie.includes('auth-token') : false)
+    if (token && !auth.isAuthenticated && !auth.isLoading) {
       auth.fetchUser?.()
     }
-  }, [])
+  }, [auth.token, auth.isAuthenticated, auth.isLoading, auth.fetchUser])
 
   return (
     <AuthContext.Provider value={auth}>

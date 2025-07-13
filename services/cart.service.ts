@@ -76,4 +76,22 @@ export const cartService = {
       return { data: cartResponse.data }
     }
   },
+
+  async clearCart(): Promise<{ data: Cart }> {
+    if (USE_MOCK_SERVICE) {
+      await mockCartService.clearCart()
+      const cartResponse = await mockCartService.getCart()
+      return { data: cartResponse.data }
+    }
+    
+    try {
+      const response = await api.delete('/cart')
+      return response.data
+    } catch (error) {
+      console.warn('API call failed, falling back to mock service:', error)
+      await mockCartService.clearCart()
+      const cartResponse = await mockCartService.getCart()
+      return { data: cartResponse.data }
+    }
+  },
 }

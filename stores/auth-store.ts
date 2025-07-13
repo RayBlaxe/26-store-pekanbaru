@@ -95,7 +95,7 @@ export const useAuthStore = create<AuthStore>()((
         try {
           const token = authService.getToken()
           if (!token) {
-            set({ user: null, token: null, isAuthenticated: false })
+            set({ user: null, token: null, isAuthenticated: false, isLoading: false })
             return
           }
 
@@ -110,12 +110,14 @@ export const useAuthStore = create<AuthStore>()((
           })
         } catch (error: any) {
           console.error('Fetch user error:', error)
+          // Clear token if user fetch fails
+          authService.logout()
           set({
             user: null,
             token: null,
             isAuthenticated: false,
             isLoading: false,
-            error: error.message,
+            error: null, // Don't show error for missing API endpoint
           })
         }
       },

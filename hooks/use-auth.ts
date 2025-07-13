@@ -5,12 +5,6 @@ import { useEffect } from 'react'
 
 export const useAuth = () => {
   const store = useAuthStore()
-  
-  useEffect(() => {
-    if (!store.isAuthenticated && !store.isLoading) {
-      store.fetchUser()
-    }
-  }, [store.isAuthenticated, store.isLoading])
 
   return {
     user: store.user,
@@ -21,6 +15,7 @@ export const useAuth = () => {
     login: store.login,
     register: store.register,
     logout: store.logout,
+    fetchUser: store.fetchUser,
     clearError: store.clearError,
   }
 }

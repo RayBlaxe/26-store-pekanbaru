@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -23,8 +23,11 @@ type LoginForm = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { login, isLoading, error } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/dashboard'
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
@@ -38,7 +41,7 @@ export default function LoginPage() {
     try {
       setIsSubmitting(true)
       await login(data)
-      router.push('/dashboard')
+      router.push(callbackUrl)
     } catch (error) {
       console.error('Login failed:', error)
     } finally {

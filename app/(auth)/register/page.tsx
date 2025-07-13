@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useAuth } from '@/hooks/use-auth'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -28,8 +28,11 @@ type RegisterForm = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { register, isLoading, error } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+  
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/dashboard'
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
@@ -45,7 +48,7 @@ export default function RegisterPage() {
     try {
       setIsSubmitting(true)
       await register(data)
-      router.push('/dashboard')
+      router.push(callbackUrl)
     } catch (error) {
       console.error('Registration failed:', error)
     } finally {

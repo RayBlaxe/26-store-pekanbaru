@@ -5,7 +5,7 @@ let mockCart: Cart = {
   id: 1,
   user_id: 1,
   items: [],
-  total_price: 0,
+  total: 0,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString()
 }
@@ -57,7 +57,7 @@ export const mockCartService = {
     }
     
     // Recalculate total
-    mockCart.total_price = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
+    mockCart.total = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
     mockCart.updated_at = new Date().toISOString()
     
     return { data: mockCart.items[existingItemIndex >= 0 ? existingItemIndex : mockCart.items.length - 1] }
@@ -81,7 +81,7 @@ export const mockCartService = {
     }
     
     // Recalculate total
-    mockCart.total_price = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
+    mockCart.total = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
     mockCart.updated_at = new Date().toISOString()
     
     return { data: mockCart.items[itemIndex] }
@@ -98,9 +98,20 @@ export const mockCartService = {
     mockCart.items.splice(itemIndex, 1)
     
     // Recalculate total
-    mockCart.total_price = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
+    mockCart.total = mockCart.items.reduce((sum, item) => sum + item.subtotal, 0)
     mockCart.updated_at = new Date().toISOString()
     
     return { message: 'Item removed from cart' }
+  },
+
+  async clearCart(): Promise<{ message: string }> {
+    await delay(300)
+    
+    // Clear all items
+    mockCart.items = []
+    mockCart.total = 0
+    mockCart.updated_at = new Date().toISOString()
+    
+    return { message: 'Cart cleared successfully' }
   },
 }

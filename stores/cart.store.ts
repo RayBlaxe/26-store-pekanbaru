@@ -16,7 +16,7 @@ interface CartStore {
   addProductToCart: (productId: number, quantity?: number) => Promise<void>
   updateCartItem: (itemId: number, quantity: number) => Promise<void>
   removeFromCart: (itemId: number) => Promise<void>
-  clearCart: () => void
+  clearCart: () => Promise<void>
   openCart: () => void
   closeCart: () => void
   setLoading: (loading: boolean) => void
@@ -103,8 +103,18 @@ export const useCartStore = create<CartStore>()((
         }
       },
 
-      clearCart: () => {
-        set({ cart: null, error: null })
+      clearCart: async () => {
+        try {
+          set({ isLoading: true, error: null })
+          await cartService.clearCart()
+          set({ cart: null, isLoading: false })
+          toast.success('Cart cleared successfully!')
+        } catch (error: any) {
+          const errorMessage = error.response?.data?.message || error.message || 'Failed to clear cart'
+          set({ error: errorMessage, isLoading: false })
+          toast.error(errorMessage)
+          throw error
+        }
       },
 
       openCart: () => {

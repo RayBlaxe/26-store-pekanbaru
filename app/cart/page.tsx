@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import { useRouter } from "next/navigation"
 import CustomerLayout from "@/components/customer-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -13,6 +14,7 @@ import { useAuthStore } from "@/stores/auth-store"
 import { formatPrice } from "@/lib/utils"
 
 export default function CartPage() {
+  const router = useRouter()
   const { 
     cart, 
     isLoading, 
@@ -68,7 +70,7 @@ export default function CartPage() {
               <ShoppingCart className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-4">Please Login</h2>
               <p className="text-gray-400 mb-6">You need to be logged in to view your cart.</p>
-              <Button onClick={() => window.location.href = '/login'}>Login</Button>
+              <Button onClick={() => router.push('/login')}>Login</Button>
             </div>
           </div>
         </div>
@@ -102,7 +104,7 @@ export default function CartPage() {
               <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-4">Keranjang Kosong</h2>
               <p className="text-gray-400 mb-6">Belum ada produk di keranjang Anda.</p>
-              <Button onClick={() => window.location.href = '/'}>Mulai Belanja</Button>
+              <Button onClick={() => router.push('/')}>Mulai Belanja</Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -187,7 +189,7 @@ export default function CartPage() {
                     </div>
                     <Button 
                       className="w-full bg-green-600 hover:bg-green-700 text-white"
-                      onClick={() => window.location.href = '/checkout'}
+                      onClick={() => router.push('/checkout')}
                       disabled={isLoading}
                     >
                       Lanjut ke Checkout
