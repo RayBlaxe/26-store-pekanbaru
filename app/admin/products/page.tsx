@@ -20,12 +20,23 @@ interface Product {
   name: string
   price: number
   stock: number
-  category: string
+  category: {
+    id: string
+    name: string
+    slug: string
+    description?: string
+    image?: string
+    is_active: boolean
+    created_at: string
+    updated_at: string
+  } | string // Support both object and string format
   brand?: string
   images: string[]
-  isActive: boolean
+  isActive?: boolean
+  is_active?: boolean // Laravel snake_case format
   sku?: string
   createdAt: string
+  created_at?: string // Laravel snake_case format
 }
 
 export default function ProductsPage() {
@@ -46,48 +57,16 @@ export default function ProductsPage() {
         category: filters.category !== "all" ? filters.category : undefined,
         inStock: filters.inStock !== "all" ? filters.inStock === "true" : undefined
       })
+      console.log('API Response:', response) // Debug log
       setProducts(response.data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
-      // Set mock data for development
-      setProducts([
-        {
-          id: '1',
-          name: 'Sepatu Futsal Specs Metasala',
-          price: 500000,
-          stock: 50,
-          category: 'Sepatu',
-          brand: 'Specs',
-          images: ['/placeholder.jpg'],
-          isActive: true,
-          sku: 'SPU-001',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '2',
-          name: 'Sepatu Bola Ortuseight',
-          price: 350000,
-          stock: 30,
-          category: 'Sepatu',
-          brand: 'Ortuseight',
-          images: ['/placeholder.jpg'],
-          isActive: true,
-          sku: 'SPU-002',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: '3',
-          name: 'Jersey Sport',
-          price: 150000,
-          stock: 5,
-          category: 'Baju',
-          brand: 'Nike',
-          images: ['/placeholder.jpg'],
-          isActive: true,
-          sku: 'JSY-001',
-          createdAt: new Date().toISOString()
-        }
-      ])
+      toast({
+        title: "Error",
+        description: "Failed to fetch products. Please check if the backend is running.",
+        variant: "destructive",
+      })
+      setProducts([])
     } finally {
       setLoading(false)
     }
@@ -123,12 +102,14 @@ export default function ProductsPage() {
       accessorKey: "images",
       header: "Image",
       cell: ({ row }) => {
-        const images = row.getValue("images") as string[]
+        const product = row.original
+        const images = Array.isArray(product.images) ? product.images : []
+        const imageUrl = images.length > 0 ? images[0] : '/placeholder.jpg'
         return (
           <div className="relative w-12 h-12">
             <Image
-              src={images[0] || '/placeholder.jpg'}
-              alt={row.getValue("name")}
+              src={imageUrl}
+              alt={product.name || 'Product image'}
               fill
               className="object-cover rounded"
             />
@@ -154,8 +135,9 @@ export default function ProductsPage() {
       accessorKey: "category",
       header: "Category",
       cell: ({ row }) => {
-        const category = row.getValue("category") as string
-        return <Badge variant="outline">{category}</Badge>
+        const category = row.getValue("category") as Product["category"]
+        const categoryName = typeof category === 'string' ? category : category?.name || 'No Category'
+        return <Badge variant="outline">{categoryName}</Badge>
       },
     },
     {
@@ -187,7 +169,8 @@ export default function ProductsPage() {
       accessorKey: "isActive",
       header: "Status",
       cell: ({ row }) => {
-        const isActive = row.getValue("isActive") as boolean
+        const product = row.original
+        const isActive = product.isActive ?? product.is_active ?? false
         return (
           <Badge variant={isActive ? "default" : "secondary"}>
             {isActive ? "Active" : "Inactive"}
@@ -229,6 +212,7 @@ export default function ProductsPage() {
   ]
 
   const lowStockCount = products.filter(p => p.stock <= 10).length
+  const activeProductsCount = products.filter(p => p.isActive ?? p.is_active ?? false).length
 
   return (
     <div className="space-y-6">
@@ -264,7 +248,7 @@ export default function ProductsPage() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{products.filter(p => p.isActive).length}</div>
+            <div className="text-2xl font-bold">{activeProductsCount}</div>
           </CardContent>
         </Card>
         
