@@ -1,120 +1,359 @@
 "use client"
 
-import { useState } from "react"
-import AdminLayout from "@/components/admin-layout"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, Plus, Edit, Trash2, Eye } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { DataTable } from "@/components/admin/data-table"
+import { ColumnDef } from "@tanstack/react-table"
+import { Plus, Edit, Trash2, Eye, Package, AlertTriangle, Filter } from "lucide-react"
+import { getProducts, deleteProduct, bulkDeleteProducts } from "@/services/admin.service"
+import { toast } from "@/hooks/use-toast"
 
-const products = [
-  {
-    id: 1,
-    name: "Sepatu Futsal Specs Metasala",
-    price: "Rp. 500.000",
-    quantity: 50,
-    status: "Tersedia",
-  },
-  {
-    id: 2,
-    name: "Sepatu Bola Ortuseight",
-    price: "Rp. 350.000",
-    quantity: 30,
-    status: "Tersedia",
-  },
-  {
-    id: 3,
-    name: "Bola Futsal",
-    price: "Rp. 250.000",
-    quantity: 25,
-    status: "Tersedia",
-  },
-  {
-    id: 4,
-    name: "Jersey Apparel",
-    price: "Rp. 150.000",
-    quantity: 50,
-    status: "Tersedia",
-  },
-  {
-    id: 5,
-    name: "Tas Sport",
-    price: "Rp. 100.000",
-    quantity: 40,
-    status: "Tersedia",
-  },
-]
+interface Product {
+  id: string
+  name: string
+  price: number
+  stock: number
+  category: string
+  brand?: string
+  images: string[]
+  isActive: boolean
+  sku?: string
+  createdAt: string
+}
 
 export default function ProductsPage() {
-  const [searchTerm, setSearchTerm] = useState("")
+  const router = useRouter()
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<string | null>(null)
+  const [filters, setFilters] = useState({
+    category: "all",
+    inStock: "all"
+  })
+
+  const fetchProducts = async () => {
+    try {
+      setLoading(true)
+      const response = await getProducts({
+        category: filters.category !== "all" ? filters.category : undefined,
+        inStock: filters.inStock !== "all" ? filters.inStock === "true" : undefined
+      })
+      setProducts(response.data || [])
+    } catch (error) {
+      console.error('Error fetching products:', error)
+      // Set mock data for development
+      setProducts([
+        {
+          id: '1',
+          name: 'Sepatu Futsal Specs Metasala',
+          price: 500000,
+          stock: 50,
+          category: 'Sepatu',
+          brand: 'Specs',
+          images: ['/placeholder.jpg'],
+          isActive: true,
+          sku: 'SPU-001',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Sepatu Bola Ortuseight',
+          price: 350000,
+          stock: 30,
+          category: 'Sepatu',
+          brand: 'Ortuseight',
+          images: ['/placeholder.jpg'],
+          isActive: true,
+          sku: 'SPU-002',
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: '3',
+          name: 'Jersey Sport',
+          price: 150000,
+          stock: 5,
+          category: 'Baju',
+          brand: 'Nike',
+          images: ['/placeholder.jpg'],
+          isActive: true,
+          sku: 'JSY-001',
+          createdAt: new Date().toISOString()
+        }
+      ])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchProducts()
+  }, [filters])
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteProduct(id)
+      setProducts(prev => prev.filter(p => p.id !== id))
+      toast({
+        title: "Product deleted",
+        description: "The product has been successfully deleted.",
+      })
+    } catch (error) {
+      console.error('Error deleting product:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete product. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setDeleteDialogOpen(false)
+      setProductToDelete(null)
+    }
+  }
+
+  const columns: ColumnDef<Product>[] = [
+    {
+      accessorKey: "images",
+      header: "Image",
+      cell: ({ row }) => {
+        const images = row.getValue("images") as string[]
+        return (
+          <div className="relative w-12 h-12">
+            <Image
+              src={images[0] || '/placeholder.jpg'}
+              alt={row.getValue("name")}
+              fill
+              className="object-cover rounded"
+            />
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "name",
+      header: "Product Name",
+      cell: ({ row }) => {
+        const name = row.getValue("name") as string
+        const sku = row.original.sku
+        return (
+          <div>
+            <div className="font-medium">{name}</div>
+            {sku && <div className="text-sm text-muted-foreground">SKU: {sku}</div>}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+      cell: ({ row }) => {
+        const category = row.getValue("category") as string
+        return <Badge variant="outline">{category}</Badge>
+      },
+    },
+    {
+      accessorKey: "brand",
+      header: "Brand",
+    },
+    {
+      accessorKey: "price",
+      header: "Price",
+      cell: ({ row }) => {
+        const price = row.getValue("price") as number
+        return <div className="font-medium">Rp {price.toLocaleString('id-ID')}</div>
+      },
+    },
+    {
+      accessorKey: "stock",
+      header: "Stock",
+      cell: ({ row }) => {
+        const stock = row.getValue("stock") as number
+        return (
+          <div className="flex items-center gap-2">
+            <span className={stock <= 10 ? "text-orange-600 font-medium" : ""}>{stock}</span>
+            {stock <= 10 && <AlertTriangle className="h-4 w-4 text-orange-500" />}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "isActive",
+      header: "Status",
+      cell: ({ row }) => {
+        const isActive = row.getValue("isActive") as boolean
+        return (
+          <Badge variant={isActive ? "default" : "secondary"}>
+            {isActive ? "Active" : "Inactive"}
+          </Badge>
+        )
+      },
+    },
+    {
+      id: "actions",
+      header: "Actions",
+      cell: ({ row }) => {
+        const product = row.original
+        return (
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" asChild>
+              <Link href={`/admin/products/${product.id}`}>
+                <Eye className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild>
+              <Link href={`/admin/products/${product.id}/edit`}>
+                <Edit className="h-4 w-4" />
+              </Link>
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={() => {
+                setProductToDelete(product.id)
+                setDeleteDialogOpen(true)
+              }}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+        )
+      },
+    },
+  ]
+
+  const lowStockCount = products.filter(p => p.stock <= 10).length
 
   return (
-    
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-white">Data Produk</h1>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Products</h1>
+          <p className="text-muted-foreground">Manage your product inventory</p>
+        </div>
+        <Button asChild>
+          <Link href="/admin/products/new">
             <Plus className="h-4 w-4 mr-2" />
-            Tambah Produk
-          </Button>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-64">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="search"
-            placeholder="Search Produk"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-slate-700 border-slate-600 text-white placeholder-gray-400"
-          />
-        </div>
-
-        {/* Info Banner */}
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded">
-          Data yang ada di tabel ini adalah 5 produk pertama
-        </div>
-
-        {/* Table */}
-        <div className="bg-white rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50">
-                <TableHead className="font-semibold text-gray-900">No</TableHead>
-                <TableHead className="font-semibold text-gray-900">Nama Barang</TableHead>
-                <TableHead className="font-semibold text-gray-900">Harga Jual</TableHead>
-                <TableHead className="font-semibold text-gray-900">Jumlah</TableHead>
-                <TableHead className="font-semibold text-gray-900">Opsi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {products.map((product, index) => (
-                <TableRow key={product.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell className="font-semibold">{product.price}</TableCell>
-                  <TableCell>{product.quantity}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 text-xs">
-                        <Eye className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 text-xs">
-                        <Edit className="h-3 w-3" />
-                      </Button>
-                      <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 text-xs">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+            Add Product
+          </Link>
+        </Button>
       </div>
-    
+
+      {/* Stats */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{products.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Products</CardTitle>
+            <Package className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{products.filter(p => p.isActive).length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Low Stock</CardTitle>
+            <AlertTriangle className="h-4 w-4 text-orange-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">{lowStockCount}</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Filter className="h-5 w-5" />
+            Filters
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-4">
+            <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="All Categories" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                <SelectItem value="Sepatu">Sepatu</SelectItem>
+                <SelectItem value="Baju">Baju</SelectItem>
+                <SelectItem value="Celana">Celana</SelectItem>
+                <SelectItem value="Aksesoris">Aksesoris</SelectItem>
+              </SelectContent>
+            </Select>
+            
+            <Select value={filters.inStock} onValueChange={(value) => setFilters(prev => ({ ...prev, inStock: value }))}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Stock Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Products</SelectItem>
+                <SelectItem value="true">In Stock</SelectItem>
+                <SelectItem value="false">Out of Stock</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Products Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>All Products</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {loading ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <DataTable 
+              columns={columns} 
+              data={products}
+              searchKey="name"
+              searchPlaceholder="Search products..."
+            />
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the product from your inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => productToDelete && handleDelete(productToDelete)}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   )
 }

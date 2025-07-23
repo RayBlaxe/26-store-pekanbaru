@@ -39,9 +39,15 @@ api.interceptors.response.use(
 export const authService = {
   async login(credentials: LoginRequest): Promise<AuthResponse> {
     const response = await api.post('/login', credentials)
-    const { token } = response.data
+    const { token, user } = response.data
     
     Cookies.set('auth-token', token, { 
+      expires: 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+    
+    Cookies.set('user-data', JSON.stringify(user), { 
       expires: 7, // 7 days
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
@@ -52,9 +58,15 @@ export const authService = {
 
   async register(credentials: RegisterRequest): Promise<AuthResponse> {
     const response = await api.post('/register', credentials)
-    const { token } = response.data
+    const { token, user } = response.data
     
     Cookies.set('auth-token', token, { 
+      expires: 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
+    
+    Cookies.set('user-data', JSON.stringify(user), { 
       expires: 7, // 7 days
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict'
@@ -70,6 +82,7 @@ export const authService = {
       console.error('Logout error:', error)
     } finally {
       Cookies.remove('auth-token')
+      Cookies.remove('user-data')
     }
   },
 

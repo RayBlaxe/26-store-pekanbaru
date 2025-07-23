@@ -168,6 +168,63 @@ let mockOrders: Order[] = [
     payment_token: 'mock-payment-token-123',
     created_at: '2024-01-25T11:00:00Z',
     updated_at: '2024-01-25T11:00:00Z'
+  },
+  {
+    id: 14,
+    user_id: 1,
+    order_number: 'ORD-20250713-0011',
+    status: 'pending',
+    payment_status: 'pending',
+    total_amount: 615000,
+    shipping_cost: 15000,
+    shipping_address: {
+      id: 1,
+      user_id: 1,
+      name: 'Aza Rahman',
+      phone: '08123456789',
+      street: 'Jl. Sudirman No. 456',
+      city: 'Pekanbaru',
+      state: 'Riau',
+      postal_code: '28282',
+      is_default: true,
+      created_at: '2025-07-13T08:00:00Z',
+      updated_at: '2025-07-13T08:00:00Z'
+    },
+    items: [
+      {
+        id: 14,
+        order_id: 14,
+        product_id: 4,
+        product: {
+          id: 4,
+          name: 'Bola Sepak FIFA Official',
+          slug: 'bola-sepak-fifa-official',
+          price: '600000',
+          formatted_price: 'Rp 600.000',
+          image: '/placeholder.jpg',
+          images: ['/placeholder.jpg'],
+          description: 'Bola sepak resmi FIFA untuk pertandingan',
+          category_id: 4,
+          stock: 15,
+          rating: 4.9,
+          in_stock: true,
+          sku: 'FIFA-001',
+          weight: '450g',
+          is_active: true,
+          views: 200,
+          created_at: '2025-07-01T00:00:00Z',
+          updated_at: '2025-07-01T00:00:00Z'
+        },
+        quantity: 1,
+        price: 600000,
+        subtotal: 600000
+      }
+    ],
+    payment_method: 'midtrans',
+    payment_token: 'mock-payment-token-14',
+    notes: 'Kirim dengan bubble wrap ekstra',
+    created_at: '2025-07-13T10:30:00Z',
+    updated_at: '2025-07-13T10:30:00Z'
   }
 ]
 
@@ -269,8 +326,10 @@ export const mockOrderService = {
     
     const orderIndex = mockOrders.findIndex(o => o.id === orderId)
     if (orderIndex === -1) {
-      throw new Error('Order not found')
+      throw new Error(`Order with ID ${orderId} not found`)
     }
+    
+    console.log(`Updating order ${orderId} from status '${mockOrders[orderIndex].status}' to '${status}'`)
     
     // When updating to 'processing', also update payment status to 'paid' 
     // since this indicates successful payment
@@ -281,14 +340,21 @@ export const mockOrderService = {
     
     if (status === 'processing' && mockOrders[orderIndex].payment_status === 'pending') {
       updateData.payment_status = 'paid'
+      console.log(`Also updating payment status to 'paid' for order ${orderId}`)
     }
     
+    // Apply the updates
     mockOrders[orderIndex] = {
       ...mockOrders[orderIndex],
       ...updateData
     }
     
-    console.log(`Updated order ${orderId} status to ${status}, payment_status: ${mockOrders[orderIndex].payment_status}`)
+    console.log(`Successfully updated order ${orderId}:`, {
+      status: mockOrders[orderIndex].status,
+      payment_status: mockOrders[orderIndex].payment_status,
+      updated_at: mockOrders[orderIndex].updated_at
+    })
+    
     return { data: mockOrders[orderIndex] }
   },
 

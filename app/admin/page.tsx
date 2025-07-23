@@ -1,162 +1,283 @@
+"use client"
+
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Users, ShoppingCart, Package, BarChart3, TrendingUp } from "lucide-react"
-
-const adminStats = [
-  { title: "Total Produk", value: "156", icon: Package, color: "bg-blue-600" },
-  { title: "Total Pelanggan", value: "1,234", icon: Users, color: "bg-green-600" },
-  { title: "Penjualan Hari Ini", value: "Rp 2.5M", icon: TrendingUp, color: "bg-yellow-600" },
-  { title: "Pesanan Pending", value: "23", icon: ShoppingCart, color: "bg-red-600" },
-]
-
-const quickActions = [
-  { title: "Kelola Produk", href: "/admin/products", icon: Package, description: "Tambah, edit, atau hapus produk" },
-  { title: "Kelola Pelanggan", href: "/admin/customers", icon: Users, description: "Lihat dan kelola data pelanggan" },
-  { title: "Data Penjualan", href: "/admin/sales", icon: ShoppingCart, description: "Monitor transaksi penjualan" },
-  { title: "Laporan", href: "/admin/reports", icon: BarChart3, description: "Lihat laporan penjualan" },
-]
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Users, ShoppingCart, Package, DollarSign, AlertTriangle } from "lucide-react"
+import { StatCard } from "@/components/admin/stat-card"
+import { SalesChart } from "@/components/admin/sales-chart"
+import { RecentOrders } from "@/components/admin/recent-orders"
+import { TopProducts } from "@/components/admin/top-products"
+import { getDashboardStats, getSalesChart, getRecentOrders, getTopProducts, getLowStockProducts } from "@/services/admin.service"
 
 export default function AdminDashboard() {
-  return (
-    <div className="min-h-screen bg-slate-800">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-red-600 rounded flex items-center justify-center">
-              <span className="text-white font-bold text-xl">26</span>
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">Admin Dashboard</h1>
-              <p className="text-gray-400">26 Store Pekanbaru</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4">
-            <span className="text-white text-sm">Hi, Admin!</span>
-            <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
-          </div>
-        </div>
+  const [stats, setStats] = useState<any>(null)
+  const [salesData, setSalesData] = useState<any[]>([])
+  const [recentOrders, setRecentOrders] = useState<any[]>([])
+  const [topProducts, setTopProducts] = useState<any[]>([])
+  const [lowStockProducts, setLowStockProducts] = useState<any[]>([])
+  const [salesPeriod, setSalesPeriod] = useState<'7d' | '30d' | '90d'>('30d')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {adminStats.map((stat) => {
-            const Icon = stat.icon
-            return (
-              <Card key={stat.title} className="bg-slate-700 border-slate-600">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-gray-400 text-sm font-medium">{stat.title}</p>
-                      <p className="text-white text-2xl font-bold">{stat.value}</p>
-                    </div>
-                    <div className={`w-12 h-12 ${stat.color} rounded-lg flex items-center justify-center`}>
-                      <Icon className="h-6 w-6 text-white" />
-                    </div>
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        // Fetch all dashboard data in parallel
+        const [statsRes, salesRes, ordersRes, productsRes, lowStockRes] = await Promise.allSettled([
+          getDashboardStats(),
+          getSalesChart(salesPeriod),
+          getRecentOrders(10),
+          getTopProducts(5),
+          getLowStockProducts(10)
+        ])
+
+        // Handle stats
+        if (statsRes.status === 'fulfilled') {
+          setStats(statsRes.value)
+        }
+
+        // Handle sales chart data
+        if (salesRes.status === 'fulfilled') {
+          setSalesData(salesRes.value.data || [])
+        }
+
+        // Handle recent orders
+        if (ordersRes.status === 'fulfilled') {
+          setRecentOrders(ordersRes.value.data || [])
+        }
+
+        // Handle top products
+        if (productsRes.status === 'fulfilled') {
+          setTopProducts(productsRes.value.data || [])
+        }
+
+        // Handle low stock products
+        if (lowStockRes.status === 'fulfilled') {
+          setLowStockProducts(lowStockRes.value.data || [])
+        }
+
+      } catch (err) {
+        console.error('Dashboard fetch error:', err)
+        setError('Failed to load dashboard data')
+        
+        // Set mock data for development
+        setStats({
+          totalRevenue: 2500000,
+          totalOrders: 156,
+          totalCustomers: 89,
+          totalProducts: 45,
+          revenueChange: 12.5,
+          ordersChange: 8.3,
+          customersChange: 15.2,
+          productsChange: 2.1
+        })
+        
+        setSalesData([
+          { date: '2024-01-01', sales: 50000, orders: 12 },
+          { date: '2024-01-02', sales: 75000, orders: 18 },
+          { date: '2024-01-03', sales: 120000, orders: 24 },
+          { date: '2024-01-04', sales: 90000, orders: 15 },
+          { date: '2024-01-05', sales: 150000, orders: 32 },
+        ])
+        
+        setRecentOrders([
+          {
+            id: '1',
+            orderNumber: 'ORD-001',
+            customer: { name: 'John Doe', email: 'john@example.com' },
+            total: 500000,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          }
+        ])
+        
+        setTopProducts([
+          {
+            id: '1',
+            name: 'Sepatu Futsal Specs',
+            image: '/placeholder.jpg',
+            soldCount: 45,
+            revenue: 2250000,
+            stock: 15
+          }
+        ])
+        
+        setLowStockProducts([
+          {
+            id: '1',
+            name: 'Jersey Sport',
+            stock: 5,
+            minStock: 10
+          }
+        ])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardData()
+  }, [salesPeriod])
+
+  const handleSalesPeriodChange = (period: '7d' | '30d' | '90d') => {
+    setSalesPeriod(period)
+  }
+
+  if (loading && !stats) {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                    <div className="h-8 w-16 bg-gray-200 rounded"></div>
                   </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                  <div className="h-12 w-12 bg-gray-200 rounded"></div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
+      </div>
+    )
+  }
 
-        {/* Quick Actions */}
-        <Card className="bg-slate-700 border-slate-600 mb-8">
-          <CardHeader>
-            <CardTitle className="text-white">Aksi Cepat</CardTitle>
+  return (
+    <div className="space-y-6">
+      {error && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {error}. Showing demo data for development.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Stats Cards */}
+      {stats && (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Total Revenue"
+            value={`Rp ${stats.totalRevenue?.toLocaleString('id-ID') || '0'}`}
+            change={{
+              value: stats.revenueChange || 0,
+              isPositive: (stats.revenueChange || 0) > 0
+            }}
+            icon={DollarSign}
+          />
+          <StatCard
+            title="Total Orders"
+            value={stats.totalOrders?.toLocaleString('id-ID') || '0'}
+            change={{
+              value: stats.ordersChange || 0,
+              isPositive: (stats.ordersChange || 0) > 0
+            }}
+            icon={ShoppingCart}
+          />
+          <StatCard
+            title="Total Customers"
+            value={stats.totalCustomers?.toLocaleString('id-ID') || '0'}
+            change={{
+              value: stats.customersChange || 0,
+              isPositive: (stats.customersChange || 0) > 0
+            }}
+            icon={Users}
+          />
+          <StatCard
+            title="Total Products"
+            value={stats.totalProducts?.toLocaleString('id-ID') || '0'}
+            change={{
+              value: stats.productsChange || 0,
+              isPositive: (stats.productsChange || 0) > 0
+            }}
+            icon={Package}
+          />
+        </div>
+      )}
+
+      {/* Charts and Tables */}
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-7">
+        <SalesChart
+          data={salesData}
+          period={salesPeriod}
+          onPeriodChange={handleSalesPeriodChange}
+          loading={loading}
+        />
+        <RecentOrders orders={recentOrders} loading={loading} />
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2">
+        <TopProducts products={topProducts} loading={loading} />
+        
+        {/* Low Stock Alert */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-500" />
+              Low Stock Alert
+            </CardTitle>
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/admin/products?filter=low-stock">
+                View all
+              </Link>
+            </Button>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {quickActions.map((action) => {
-                const Icon = action.icon
-                return (
-                  <Link key={action.title} href={action.href}>
-                    <Card className="bg-slate-600 border-slate-500 hover:bg-slate-500 transition-colors cursor-pointer">
-                      <CardContent className="p-4">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <Icon className="h-5 w-5 text-blue-400" />
-                          <h3 className="text-white font-semibold">{action.title}</h3>
-                        </div>
-                        <p className="text-gray-400 text-sm">{action.description}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )
-              })}
+            <div className="space-y-4">
+              {lowStockProducts.length === 0 ? (
+                <p className="text-muted-foreground text-center py-4">All products are well stocked</p>
+              ) : (
+                lowStockProducts.map((product) => (
+                  <div key={product.id} className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium">{product.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Min stock: {product.minStock}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-orange-600 font-medium">
+                        {product.stock} left
+                      </p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </CardContent>
         </Card>
-
-        {/* Recent Activity */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-slate-700 border-slate-600">
-            <CardHeader>
-              <CardTitle className="text-white">Pesanan Terbaru</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { id: "ORD-001", customer: "John Doe", amount: "Rp 500.000", status: "Pending" },
-                  { id: "ORD-002", customer: "Jane Smith", amount: "Rp 350.000", status: "Diproses" },
-                  { id: "ORD-003", customer: "Bob Wilson", amount: "Rp 750.000", status: "Dikirim" },
-                ].map((order) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-slate-600 rounded-lg">
-                    <div>
-                      <p className="text-white font-medium">{order.id}</p>
-                      <p className="text-gray-400 text-sm">{order.customer}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white font-semibold">{order.amount}</p>
-                      <p className="text-blue-400 text-sm">{order.status}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-slate-700 border-slate-600">
-            <CardHeader>
-              <CardTitle className="text-white">Produk Terlaris</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { name: "Sepatu Futsal Specs", sold: 45, stock: 15 },
-                  { name: "Sepatu Bola Ortuseight", sold: 32, stock: 8 },
-                  { name: "Jersey Sport", sold: 28, stock: 22 },
-                ].map((product, index) => (
-                  <div key={product.name} className="flex items-center justify-between p-3 bg-slate-600 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-blue-400 font-bold">#{index + 1}</span>
-                      <div>
-                        <p className="text-white font-medium">{product.name}</p>
-                        <p className="text-gray-400 text-sm">Stok: {product.stock}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-green-400 font-semibold">{product.sold} terjual</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Access Customer Portal */}
-        <div className="mt-8 text-center">
-          <Card className="bg-slate-700 border-slate-600 inline-block">
-            <CardContent className="p-6">
-              <h3 className="text-white font-semibold mb-2">Lihat Portal Pelanggan</h3>
-              <p className="text-gray-400 mb-4">Akses tampilan yang dilihat pelanggan</p>
-              <Link href="/">
-                <Button className="bg-green-600 hover:bg-green-700">Buka Portal Pelanggan</Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
       </div>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Button asChild>
+              <Link href="/admin/products/new">Add New Product</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/admin/orders">View All Orders</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/admin/users">Manage Users</Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link href="/admin/reports">View Reports</Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

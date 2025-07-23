@@ -11,7 +11,7 @@ import {
 import { mockOrderService } from './mock-order.service'
 
 // Use mock service when API is not available
-const USE_MOCK_SERVICE = !process.env.NEXT_PUBLIC_API_URL
+const USE_MOCK_SERVICE = false // Disable mock service to use real Laravel backend
 
 export const orderService = {
   async createOrder(orderData: CreateOrderRequest): Promise<OrderResponse> {
@@ -132,27 +132,31 @@ export const orderService = {
 
   async updateOrderStatus(orderId: number, status: string): Promise<OrderResponse> {
     if (USE_MOCK_SERVICE) {
+      console.log('Using mock service to update order status:', { orderId, status })
       return mockOrderService.updateOrderStatus(orderId, status)
     }
     
     try {
-      console.log('Attempting to update order status:', { orderId, status })
+      console.log('Updating order status via Laravel API:', { orderId, status })
       const response = await api.patch(`/orders/${orderId}/status`, { status })
-      console.log('Order status update response:', response.data)
-      return response.data
-    } catch (error: any) {
-      console.warn('API call failed, falling back to mock service:', error.response?.status, error.message)
+      console.log('Laravel API response:', response.data)
       
-      // For this specific case where the backend doesn't have the endpoint yet,
-      // always fall back to mock service
-      try {
-        const result = await mockOrderService.updateOrderStatus(orderId, status)
-        console.log('Successfully updated order status using mock service:', result)
-        return result
-      } catch (mockError: any) {
-        console.error('Mock service also failed:', mockError)
-        throw new Error(`Failed to update order status: ${mockError.message}`)
+      // Laravel API returns { success: true, data: OrderResource }
+      if (response.data.success) {
+        return { data: response.data.data }
+      } else {
+        throw new Error(response.data.message || 'Failed to update order status')
       }
+    } catch (error: any) {
+      console.error('Failed to update order status:', {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        data: error.response?.data
+      })
+      
+      // Re-throw the error with proper message
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to update order status'
+      throw new Error(errorMessage)
     }
   },
 
