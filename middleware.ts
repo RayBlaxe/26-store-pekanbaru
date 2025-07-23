@@ -27,14 +27,6 @@ export function middleware(request: NextRequest) {
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
-  // DEVELOPMENT MODE: Allow access to admin and dashboard routes without authentication
-  // Remove this section when implementing proper authentication
-  if (process.env.NODE_ENV === 'development') {
-    if (isAdminRoute || pathname.startsWith('/dashboard')) {
-      return NextResponse.next()
-    }
-  }
-
   // If user is not authenticated and trying to access protected route
   if ((isProtectedRoute || isAdminRoute) && !token) {
     const loginUrl = new URL('/login', request.url)
