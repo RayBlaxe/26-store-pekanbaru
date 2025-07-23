@@ -40,8 +40,8 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsSubmitting(true)
-      await login(data)
-      router.push(callbackUrl)
+      const { redirectTo } = await login(data)
+      router.push(redirectTo)
     } catch (error) {
       console.error('Login failed:', error)
     } finally {

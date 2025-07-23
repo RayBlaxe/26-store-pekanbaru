@@ -88,6 +88,11 @@ export const useAuthStore = create<AuthStore>()((
             error: null,
           })
           toast.success('Logged out successfully')
+          
+          // Redirect to home page after logout
+          if (typeof window !== 'undefined') {
+            window.location.href = '/'
+          }
         }
       },
 

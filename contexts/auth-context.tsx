@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useReducer, ReactNode } from 'react'
 import { AuthContextType, AuthState, LoginCredentials, RegisterCredentials, User } from '@/lib/auth-types'
-import { AuthService } from '@/lib/auth-service'
+import { authService } from '@/lib/auth-service'
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
@@ -72,9 +72,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const user = await AuthService.validateToken()
-        if (user) {
+        if (authService.isAuthenticated()) {
+          const user = await authService.getUser()
           dispatch({ type: 'AUTH_SUCCESS', payload: user })
+          
+          // Check current path and redirect if needed
+          if (typeof window !== 'undefined') {
+            const currentPath = window.location.pathname
+            
+            // If admin user is on customer routes, redirect to admin
+            if (user.role === 'admin' && ['/dashboard', '/profile', '/orders', '/checkout', '/cart'].some(route => currentPath.startsWith(route))) {
+              window.location.href = '/admin'
+              return
+            }
+            
+            // If customer user is on admin routes, redirect to home
+            if (user.role === 'customer' && currentPath.startsWith('/admin')) {
+              window.location.href = '/'
+              return
+            }
+          }
         } else {
           dispatch({ type: 'AUTH_LOGOUT' })
         }
@@ -86,29 +103,44 @@ export function AuthProvider({ children }: AuthProviderProps) {
     initializeAuth()
   }, [])
 
-  const login = async (credentials: LoginCredentials) => {
+  const login = async (credentials: LoginCredentials): Promise<{ redirectTo: string }> => {
     try {
       dispatch({ type: 'AUTH_START' })
-      const { user } = await AuthService.login(credentials)
+      const { user } = await authService.login(credentials)
       dispatch({ type: 'AUTH_SUCCESS', payload: user })
+      
+      // Determine redirect path based on user role
+      const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard'
+      return { redirectTo }
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Login failed' })
+      throw error
     }
   }
 
-  const register = async (credentials: RegisterCredentials) => {
+  const register = async (credentials: RegisterCredentials): Promise<{ redirectTo: string }> => {
     try {
       dispatch({ type: 'AUTH_START' })
-      const { user } = await AuthService.register(credentials)
+      const { user } = await authService.register(credentials)
       dispatch({ type: 'AUTH_SUCCESS', payload: user })
+      
+      // Determine redirect path based on user role (new registrations are usually customers)
+      const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard'
+      return { redirectTo }
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Registration failed' })
+      throw error
     }
   }
 
   const logout = () => {
-    AuthService.logout()
+    authService.logout()
     dispatch({ type: 'AUTH_LOGOUT' })
+    
+    // Redirect to home page after logout
+    if (typeof window !== 'undefined') {
+      window.location.href = '/'
+    }
   }
 
   const clearError = () => {

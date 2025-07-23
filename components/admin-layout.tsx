@@ -6,6 +6,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Users,
   UserCog,
@@ -33,7 +34,19 @@ const navigation = [
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const pathname = usePathname();
+  const { logout, user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      setIsLoggingOut(true);
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+      setIsLoggingOut(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -83,12 +96,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               );
             })}
           </nav>
+          
+          {/* Mobile Logout Button */}
+          <div className="absolute bottom-6 left-4 right-4">
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              className="w-full justify-start text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
+            >
+              <LogOut className="h-4 w-4 mr-3" />
+              {isLoggingOut ? 'Logging out...' : 'Logout'}
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Desktop sidebar */}
       <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-64 bg-secondary lg:px-4 lg:py-6">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 mb-8">
           <Image src="/icon.png" alt="logo" width={128} height={32} />
         </div>
         <nav className="space-y-2">
@@ -111,13 +137,17 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             );
           })}
         </nav>
+        
+        {/* Desktop Logout Button */}
         <div className="absolute bottom-6 left-4 right-4">
           <Button
             variant="ghost"
-            className="w-full justify-start text-muted-foreground hover:bg-accent hover:text-foreground"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full justify-start text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
           >
             <LogOut className="h-4 w-4 mr-3" />
-            Logout
+            {isLoggingOut ? 'Logging out...' : 'Logout'}
           </Button>
         </div>
       </div>
@@ -135,8 +165,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             <Menu className="h-4 w-4" />
           </Button>
           <div className="flex items-center space-x-4 ml-auto">
-            <span className="text-foreground text-sm">Hi, Admin!</span>
-            <div className="w-8 h-8 bg-muted rounded-full"></div>
+            <span className="text-foreground text-sm">Hi, {user?.name || 'Admin'}!</span>
+            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+              <span className="text-xs font-medium">
+                {user?.name?.charAt(0).toUpperCase() || 'A'}
+              </span>
+            </div>
           </div>
         </div>
 

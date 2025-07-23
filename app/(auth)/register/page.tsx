@@ -47,8 +47,8 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterForm) => {
     try {
       setIsSubmitting(true)
-      await register(data)
-      router.push(callbackUrl)
+      const { redirectTo } = await register(data)
+      router.push(redirectTo)
     } catch (error) {
       console.error('Registration failed:', error)
     } finally {

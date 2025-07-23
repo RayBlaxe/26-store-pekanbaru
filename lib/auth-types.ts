@@ -28,8 +28,8 @@ export interface RegisterRequest {
 }
 
 export interface AuthContextType extends AuthState {
-  login: (credentials: LoginRequest) => Promise<void>
-  register: (credentials: RegisterRequest) => Promise<void>
+  login: (credentials: LoginRequest) => Promise<{ redirectTo: string }>
+  register: (credentials: RegisterRequest) => Promise<{ redirectTo: string }>
   logout: () => void
   clearError: () => void
 }

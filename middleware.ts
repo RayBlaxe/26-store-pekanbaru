@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 // Define protected routes
 const protectedRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
 const adminRoutes = ['/admin']
+const customerRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
 const authRoutes = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
@@ -25,6 +26,7 @@ export function middleware(request: NextRequest) {
   // Check if current route is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
+  const isCustomerRoute = customerRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
   // If user is not authenticated and trying to access protected route
@@ -37,6 +39,17 @@ export function middleware(request: NextRequest) {
   // If user is authenticated but not admin and trying to access admin routes
   if (isAdminRoute && token && userRole !== 'admin') {
     return NextResponse.redirect(new URL('/', request.url))
+  }
+
+  // If user is admin and trying to access customer routes, redirect to admin
+  if (isCustomerRoute && token && userRole === 'admin') {
+    return NextResponse.redirect(new URL('/admin', request.url))
+  }
+
+  // Only redirect admins from home page to admin panel
+  // Regular customers should be able to access the home page (shop)
+  if (pathname === '/' && token && userRole === 'admin') {
+    return NextResponse.redirect(new URL('/admin', request.url))
   }
 
   // If user is authenticated and trying to access auth routes
