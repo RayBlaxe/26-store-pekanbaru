@@ -98,24 +98,22 @@ export interface UpdateCartItemRequest {
 export interface Address {
   id: number;
   user_id: number;
-  name: string;
-  phone: string;
-  street: string;
+  address: string;
   city: string;
-  state: string;
+  province: string;
   postal_code: string;
+  phone: string;
   is_default: boolean;
   created_at?: string;
   updated_at?: string;
 }
 
 export interface AddressRequest {
-  name: string;
-  phone: string;
-  street: string;
+  address: string;
   city: string;
-  state: string;
+  province: string;
   postal_code: string;
+  phone: string;
   is_default?: boolean;
 }
 

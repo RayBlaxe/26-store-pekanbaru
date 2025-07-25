@@ -32,16 +32,24 @@ export default function ShippingCalculator({
   const [calculatingService, setCalculatingService] = useState<string | null>(null)
 
   useEffect(() => {
-    if (destinationCity || destinationPostalCode) {
+    console.log('ShippingCalculator props:', { destinationCity, destinationPostalCode })
+    if (destinationPostalCode) {
       loadCourierServices()
+    } else {
+      console.warn('No postal code provided - cannot calculate shipping costs')
+      toast.error('Kode pos alamat diperlukan untuk menghitung ongkos kirim')
     }
   }, [destinationCity, destinationPostalCode])
 
   const loadCourierServices = async () => {
+    if (!destinationPostalCode) {
+      toast.error('Kode pos diperlukan untuk menghitung biaya pengiriman')
+      return
+    }
+    
     try {
       setLoading(true)
-      const cityForService = destinationCity || 'jakarta' // Default city for service lookup
-      const response = await shippingService.getCourierServices(cityForService)
+      const response = await shippingService.getCourierServices(destinationPostalCode, 1.0)
       setCourierServices(response.data)
       
       // Auto-calculate costs for all services
@@ -54,26 +62,31 @@ export default function ShippingCalculator({
   }
 
   const calculateAllShippingCosts = async (services: CourierService[]) => {
+    if (!destinationPostalCode) {
+      console.error('No postal code available for shipping calculation')
+      return
+    }
+    
+    console.log('Calculating shipping costs for postal code:', destinationPostalCode)
+    console.log('Available services:', services)
+    
     const costs: Record<string, ShippingCost> = {}
     
     for (const service of services) {
       try {
-        setCalculatingService(service.code)
-        const requestData: any = {
-          courier_service: service.code
+        setCalculatingService(service.service)
+        const requestData = {
+          destination_postal_code: destinationPostalCode,
+          courier_service: service.service
         }
         
-        // Use postal code if available, otherwise use city
-        if (destinationPostalCode) {
-          requestData.destination_postal_code = destinationPostalCode
-        } else if (destinationCity) {
-          requestData.destination_city = destinationCity
-        }
-        
+        console.log(`Sending request for ${service.service}:`, requestData)
         const response = await shippingService.calculateCartShipping(requestData)
-        costs[service.code] = response.data
-      } catch (error) {
-        console.error(`Failed to calculate cost for ${service.code}:`, error)
+        costs[service.service] = response.data
+        console.log(`Success for ${service.service}:`, response.data)
+      } catch (error: any) {
+        console.error(`Failed to calculate cost for ${service.service}:`, error)
+        console.error('Error details:', error.response?.data)
       }
     }
     
@@ -82,7 +95,7 @@ export default function ShippingCalculator({
   }
 
   const handleServiceSelect = (serviceCode: string) => {
-    const service = courierServices.find(s => s.code === serviceCode)
+    const service = courierServices.find(s => s.service === serviceCode)
     const cost = shippingCosts[serviceCode]
     
     if (service && cost) {
@@ -90,11 +103,8 @@ export default function ShippingCalculator({
     }
   }
 
-  const formatEstimatedDays = (days: { min: number, max: number }) => {
-    if (days.min === days.max) {
-      return `${days.min} hari`
-    }
-    return `${days.min}-${days.max} hari`
+  const formatEstimatedDays = (etd: string) => {
+    return etd.includes('day') ? etd : `${etd} hari`
   }
 
   if (loading) {
@@ -151,20 +161,20 @@ export default function ShippingCalculator({
         >
           <div className="space-y-3">
             {courierServices.map((service) => {
-              const cost = shippingCosts[service.code]
-              const isCalculating = calculatingService === service.code
+              const cost = shippingCosts[service.service]
+              const isCalculating = calculatingService === service.service
               
               return (
-                <div key={service.code} className="flex items-start space-x-3">
+                <div key={service.service} className="flex items-start space-x-3">
                   <RadioGroupItem
-                    value={service.code}
-                    id={`service-${service.code}`}
+                    value={service.service}
+                    id={`service-${service.service}`}
                     className="mt-1"
                     disabled={!cost || isCalculating}
                   />
                   <div className="flex-1 min-w-0">
                     <Label
-                      htmlFor={`service-${service.code}`}
+                      htmlFor={`service-${service.service}`}
                       className="block cursor-pointer"
                     >
                       <div className="bg-slate-600 p-4 rounded-lg border border-slate-500 hover:border-slate-400 transition-colors">
@@ -172,16 +182,9 @@ export default function ShippingCalculator({
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <h4 className="font-semibold text-white">{service.name}</h4>
-                              {service.code === 'same_day' && (
-                                <span className="text-xs bg-orange-600 text-white px-2 py-1 rounded">
-                                  Same Day
-                                </span>
-                              )}
-                              {service.code === 'express' && (
-                                <span className="text-xs bg-blue-600 text-white px-2 py-1 rounded">
-                                  Express
-                                </span>
-                              )}
+                              <span className="text-xs bg-green-600 text-white px-2 py-1 rounded">
+                                {service.service}
+                              </span>
                             </div>
                             <p className="text-slate-300 text-sm mb-2">{service.description}</p>
                             
@@ -195,7 +198,7 @@ export default function ShippingCalculator({
                                 <div className="flex items-center gap-4">
                                   <div className="flex items-center gap-1 text-slate-300">
                                     <Clock className="h-4 w-4" />
-                                    <span className="text-sm">{formatEstimatedDays(cost.estimated_days)}</span>
+                                    <span className="text-sm">{formatEstimatedDays(cost.estimated_delivery)}</span>
                                   </div>
                                 </div>
                                 <div className="text-right">

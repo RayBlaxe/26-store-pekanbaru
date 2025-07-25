@@ -1,34 +1,53 @@
 import api from '@/lib/auth-service'
 
 export interface ShippingCost {
-  base_rate: number
-  weight_category: string
-  weight_multiplier: number
-  courier_service: string
-  courier_multiplier: number
+  courier_name: string
+  courier_code: string
+  service: string
+  service_description: string
   total_cost: number
-  estimated_days: {
-    min: number
-    max: number
-  }
+  estimated_delivery: string
+  weight_grams: number
+  origin: string
+  destination: string
+  all_services?: RajaOngkirService[]
+  is_fallback?: boolean
+}
+
+export interface RajaOngkirService {
+  name: string
+  code: string
+  service: string
+  description: string
+  cost: number
+  etd: string
+}
+
+export interface DestinationSearch {
+  postal_code: string
+  city_name: string
+  subdistrict_name: string
+  type: string
+  province: string
 }
 
 export interface CourierService {
   code: string
   name: string
+  service: string
   description: string
-  multiplier: number
+  cost: number
+  etd: string
 }
 
 export interface ShippingCalculationRequest {
-  destination_city: string
+  destination_postal_code: string
   total_weight?: number
   courier_service?: string
 }
 
 export interface CartShippingCalculationRequest {
-  destination_city?: string
-  destination_postal_code?: string
+  destination_postal_code: string
   courier_service?: string
 }
 
@@ -53,9 +72,11 @@ export const shippingService = {
     }
   },
 
-  async getCourierServices(city: string): Promise<{ data: CourierService[] }> {
+  async getCourierServices(postalCode: string, weight: number = 1.0): Promise<{ data: CourierService[] }> {
     try {
-      const response = await api.get(`/shipping/courier-services?city=${encodeURIComponent(city)}`)
+      const response = await api.get(
+        `/shipping/courier-services?postal_code=${encodeURIComponent(postalCode)}&weight=${weight}`
+      )
       return response.data
     } catch (error) {
       console.error('Failed to get courier services:', error)
@@ -63,17 +84,19 @@ export const shippingService = {
     }
   },
 
-  async getSupportedCities(): Promise<{ data: string[] }> {
+  async searchDestinations(query: string, limit: number = 10, offset: number = 0): Promise<{ data: DestinationSearch[], meta: any }> {
     try {
-      const response = await api.get('/shipping/cities')
+      const response = await api.get(
+        `/shipping/search-destinations?search=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}`
+      )
       return response.data
     } catch (error) {
-      console.error('Failed to get supported cities:', error)
+      console.error('Failed to search destinations:', error)
       throw error
     }
   },
 
-  async getOriginInfo(): Promise<{ data: { postal_code: string, city: string, province: string, country: string } }> {
+  async getOriginInfo(): Promise<{ data: { postal_code: string, city: string, province: string, country: string, store_name: string } }> {
     try {
       const response = await api.get('/shipping/origin')
       return response.data

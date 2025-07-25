@@ -27,12 +27,11 @@ interface ShippingFormProps {
 }
 
 const addressSchema = z.object({
-  name: z.string().min(2, "Nama minimal 2 karakter"),
-  phone: z.string().min(10, "Nomor telepon minimal 10 digit"),
-  street: z.string().min(5, "Alamat minimal 5 karakter"),
+  address: z.string().min(5, "Alamat minimal 5 karakter"),
   city: z.string().min(2, "Kota minimal 2 karakter"),
-  state: z.string().min(2, "Provinsi minimal 2 karakter"),
+  province: z.string().min(2, "Provinsi minimal 2 karakter"),
   postal_code: z.string().min(5, "Kode pos minimal 5 digit"),
+  phone: z.string().min(10, "Nomor telepon minimal 10 digit"),
   is_default: z.boolean().optional(),
 })
 
@@ -49,12 +48,11 @@ export default function ShippingForm({
   const form = useForm<AddressRequest>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      name: "",
-      phone: "",
-      street: "",
+      address: "",
       city: "",
-      state: "",
+      province: "",
       postal_code: "",
+      phone: "",
       is_default: false,
     },
   })
@@ -75,7 +73,7 @@ export default function ShippingForm({
   }
 
   const formatAddress = (address: Address) => {
-    return `${address.street}, ${address.city}, ${address.state} ${address.postal_code}`
+    return `${address.address}, ${address.city}, ${address.province} ${address.postal_code}`
   }
 
   return (
@@ -102,15 +100,15 @@ export default function ShippingForm({
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="name"
+                      name="city"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Nama Penerima</FormLabel>
+                          <FormLabel>Kota</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               className="bg-slate-600 border-slate-500 text-white"
-                              placeholder="Nama lengkap"
+                              placeholder="Pekanbaru"
                             />
                           </FormControl>
                           <FormMessage />
@@ -137,7 +135,7 @@ export default function ShippingForm({
                   </div>
                   <FormField
                     control={form.control}
-                    name="street"
+                    name="address"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Alamat Lengkap</FormLabel>
@@ -155,15 +153,15 @@ export default function ShippingForm({
                   <div className="grid grid-cols-2 gap-4">
                     <FormField
                       control={form.control}
-                      name="city"
+                      name="province"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Kota</FormLabel>
+                          <FormLabel>Provinsi</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               className="bg-slate-600 border-slate-500 text-white"
-                              placeholder="Nama kota"
+                              placeholder="Riau"
                             />
                           </FormControl>
                           <FormMessage />
@@ -172,15 +170,15 @@ export default function ShippingForm({
                     />
                     <FormField
                       control={form.control}
-                      name="state"
+                      name="postal_code"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Provinsi</FormLabel>
+                          <FormLabel>Kode Pos</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
                               className="bg-slate-600 border-slate-500 text-white"
-                              placeholder="Nama provinsi"
+                              placeholder="28118"
                             />
                           </FormControl>
                           <FormMessage />
@@ -188,23 +186,6 @@ export default function ShippingForm({
                       )}
                     />
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="postal_code"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Kode Pos</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            className="bg-slate-600 border-slate-500 text-white"
-                            placeholder="12345"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="is_default"

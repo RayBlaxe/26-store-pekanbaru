@@ -187,7 +187,7 @@ export default function CheckoutPage() {
                   destinationCity={selectedAddress.city}
                   destinationPostalCode={selectedAddress.postal_code}
                   onShippingSelect={handleShippingSelect}
-                  selectedService={selectedShipping?.service.code}
+                  selectedService={selectedShipping?.service.service}
                   disabled={cartLoading}
                 />
               )}
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                 cart={cart}
                 selectedAddress={selectedAddress}
                 shippingCost={selectedShipping?.total_cost || 0}
-                courierService={selectedShipping?.service.code}
+                courierService={selectedShipping?.service.service}
                 onOrderCreated={handleOrderCreated}
                 disabled={cartLoading || !selectedAddress || !selectedShipping}
               />

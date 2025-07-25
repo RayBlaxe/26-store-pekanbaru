@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import CustomerLayout from "@/components/customer-layout"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,60 +11,149 @@ import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { User, MapPin, Package, Edit, Save, X } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { AddressList } from "@/components/profile/address-list"
+import { profileService } from "@/lib/profile-service"
+import { addressService } from "@/services/address.service"
+import { User as UserType } from "@/lib/auth-types"
+import { Address, AddressRequest } from "@/types/product"
+import { UpdateProfileRequest } from "@/lib/profile-types"
+import { convertUserAddressToAddress, convertAddressRequestToCreateAddressRequest } from "@/lib/address-bridge"
+import { User, MapPin, Edit, Save, X } from "lucide-react"
 
 export default function ProfilePage() {
+  const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [user, setUser] = useState<UserType | null>(null)
+  const [addresses, setAddresses] = useState<Address[]>([])
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+62 812-3456-7890",
-    address: "Jl. Aroma Pekanbaru 72, Duri, Mandau, KAB. Bengkalis 28784",
-    birthDate: "1990-01-15",
-    gender: "Laki-laki",
+    name: "",
+    email: "",
+    phone: "",
+    current_password: "",
+    password: "",
+    password_confirmation: "",
   })
 
-  const orderHistory = [
-    {
-      id: "ORD-2023-001",
-      date: "2023-12-15",
-      total: 515000,
-      status: "Diterima",
-      items: ["Sepatu X"],
-    },
-    {
-      id: "ORD-2023-002",
-      date: "2023-12-10",
-      total: 350000,
-      status: "Dalam Pengiriman",
-      items: ["Jersey Sport"],
-    },
-    {
-      id: "ORD-2023-003",
-      date: "2023-12-05",
-      total: 750000,
-      status: "Diterima",
-      items: ["Sepatu Futsal", "Bola Futsal"],
-    },
-  ]
+  useEffect(() => {
+    loadProfileData()
+  }, [])
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(price)
+  const loadProfileData = async () => {
+    try {
+      setLoading(true)
+      const [profileData, addressData] = await Promise.all([
+        profileService.getProfile(),
+        addressService.getAddresses()
+      ])
+      
+      setUser(profileData)
+      setAddresses(addressData.data)
+      setProfileData({
+        name: profileData.name,
+        email: profileData.email,
+        phone: profileData.phone || "",
+        current_password: "",
+        password: "",
+        password_confirmation: "",
+      })
+    } catch (error) {
+      console.error('Failed to load profile data:', error)
+      router.push('/login')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleSave = () => {
-    setIsEditing(false)
-    // Here you would typically save to backend
+  const handleSave = async () => {
+    try {
+      setSaving(true)
+      const updateData: UpdateProfileRequest = {}
+      
+      if (profileData.name !== user?.name) updateData.name = profileData.name
+      if (profileData.email !== user?.email) updateData.email = profileData.email
+      if (profileData.phone !== user?.phone) updateData.phone = profileData.phone
+      
+      if (profileData.password) {
+        updateData.current_password = profileData.current_password
+        updateData.password = profileData.password
+        updateData.password_confirmation = profileData.password_confirmation
+      }
+      
+      if (Object.keys(updateData).length > 0) {
+        const updatedUser = await profileService.updateProfile(updateData)
+        setUser(updatedUser)
+      }
+      
+      setIsEditing(false)
+      setProfileData(prev => ({
+        ...prev,
+        current_password: "",
+        password: "",
+        password_confirmation: "",
+      }))
+    } catch (error) {
+      console.error('Failed to update profile:', error)
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCancel = () => {
+    if (user) {
+      setProfileData({
+        name: user.name,
+        email: user.email,
+        phone: user.phone || "",
+        current_password: "",
+        password: "",
+        password_confirmation: "",
+      })
+    }
     setIsEditing(false)
-    // Reset form data if needed
   }
+
+  const handleCreateAddress = async (data: AddressRequest) => {
+    const response = await addressService.createAddress(data)
+    setAddresses(prev => [...prev, response.data])
+  }
+
+  const handleUpdateAddress = async (id: number, data: AddressRequest) => {
+    const response = await addressService.updateAddress(id, data)
+    setAddresses(prev => prev.map(addr => addr.id === id ? response.data : addr))
+  }
+
+  const handleDeleteAddress = async (id: number) => {
+    await addressService.deleteAddress(id)
+    setAddresses(prev => prev.filter(addr => addr.id !== id))
+  }
+
+  const handleSetDefaultAddress = async (id: number) => {
+    const response = await addressService.setDefaultAddress(id)
+    setAddresses(prev => prev.map(addr => ({
+      ...addr,
+      is_default: addr.id === id
+    })))
+  }
+
+  if (loading) {
+    return (
+      <CustomerLayout>
+        <div className="min-h-screen py-8">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Skeleton className="h-8 w-48 mb-8 bg-slate-700" />
+            <div className="space-y-4">
+              <Skeleton className="h-96 bg-slate-700" />
+            </div>
+          </div>
+        </div>
+      </CustomerLayout>
+    )
+  }
+
+  if (!user) return null
 
   return (
     <CustomerLayout>
@@ -72,14 +162,10 @@ export default function ProfilePage() {
           <h1 className="text-3xl font-bold text-white mb-8">Profil Saya</h1>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-700">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-700">
               <TabsTrigger value="profile" className="data-[state=active]:bg-slate-600 text-white">
                 <User className="h-4 w-4 mr-2" />
                 Profil
-              </TabsTrigger>
-              <TabsTrigger value="orders" className="data-[state=active]:bg-slate-600 text-white">
-                <Package className="h-4 w-4 mr-2" />
-                Riwayat Pesanan
               </TabsTrigger>
               <TabsTrigger value="address" className="data-[state=active]:bg-slate-600 text-white">
                 <MapPin className="h-4 w-4 mr-2" />
@@ -108,14 +194,20 @@ export default function ProfilePage() {
                       </Button>
                     ) : (
                       <div className="flex space-x-2">
-                        <Button onClick={handleSave} size="sm" className="bg-green-600 hover:bg-green-700">
+                        <Button 
+                          onClick={handleSave} 
+                          size="sm" 
+                          disabled={saving}
+                          className="bg-green-600 hover:bg-green-700"
+                        >
                           <Save className="h-4 w-4 mr-2" />
-                          Simpan
+                          {saving ? "Menyimpan..." : "Simpan"}
                         </Button>
                         <Button
                           onClick={handleCancel}
                           variant="outline"
                           size="sm"
+                          disabled={saving}
                           className="border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white"
                         >
                           <X className="h-4 w-4 mr-2" />
@@ -133,8 +225,8 @@ export default function ProfilePage() {
                       <AvatarFallback className="bg-slate-600 text-white text-xl">JD</AvatarFallback>
                     </Avatar>
                     <div>
-                      <h3 className="text-white font-semibold text-lg">{profileData.name}</h3>
-                      <p className="text-gray-400">{profileData.email}</p>
+                      <h3 className="text-white font-semibold text-lg">{user.name}</h3>
+                      <p className="text-gray-400">{user.email}</p>
                       <Badge className="mt-1 bg-green-600 text-white">Verified</Badge>
                     </div>
                   </div>
@@ -180,123 +272,66 @@ export default function ProfilePage() {
                         className="bg-slate-600 border-slate-500 text-white disabled:opacity-70"
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="birthDate" className="text-gray-300">
-                        Tanggal Lahir
-                      </Label>
-                      <Input
-                        id="birthDate"
-                        type="date"
-                        value={profileData.birthDate}
-                        onChange={(e) => setProfileData({ ...profileData, birthDate: e.target.value })}
-                        disabled={!isEditing}
-                        className="bg-slate-600 border-slate-500 text-white disabled:opacity-70"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Label htmlFor="address" className="text-gray-300">
-                        Alamat
-                      </Label>
-                      <Input
-                        id="address"
-                        value={profileData.address}
-                        onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
-                        disabled={!isEditing}
-                        className="bg-slate-600 border-slate-500 text-white disabled:opacity-70"
-                      />
-                    </div>
+                    {isEditing && (
+                      <>
+                        <div className="md:col-span-2">
+                          <Label htmlFor="current_password" className="text-gray-300">
+                            Password Saat Ini (jika ingin mengganti password)
+                          </Label>
+                          <Input
+                            id="current_password"
+                            type="password"
+                            value={profileData.current_password}
+                            onChange={(e) => setProfileData({ ...profileData, current_password: e.target.value })}
+                            className="bg-slate-600 border-slate-500 text-white"
+                            placeholder="Masukkan password saat ini"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="password" className="text-gray-300">
+                            Password Baru
+                          </Label>
+                          <Input
+                            id="password"
+                            type="password"
+                            value={profileData.password}
+                            onChange={(e) => setProfileData({ ...profileData, password: e.target.value })}
+                            className="bg-slate-600 border-slate-500 text-white"
+                            placeholder="Masukkan password baru"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="password_confirmation" className="text-gray-300">
+                            Konfirmasi Password Baru
+                          </Label>
+                          <Input
+                            id="password_confirmation"
+                            type="password"
+                            value={profileData.password_confirmation}
+                            onChange={(e) => setProfileData({ ...profileData, password_confirmation: e.target.value })}
+                            className="bg-slate-600 border-slate-500 text-white"
+                            placeholder="Konfirmasi password baru"
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
 
-            {/* Orders Tab */}
-            <TabsContent value="orders">
-              <Card className="bg-slate-700 border-slate-600">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Package className="h-5 w-5 mr-2" />
-                    Riwayat Pesanan
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {orderHistory.map((order) => (
-                      <div key={order.id} className="bg-slate-600 p-4 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <div>
-                            <h4 className="text-white font-semibold">{order.id}</h4>
-                            <p className="text-gray-400 text-sm">{order.date}</p>
-                          </div>
-                          <Badge
-                            className={
-                              order.status === "Diterima"
-                                ? "bg-green-600 text-white"
-                                : order.status === "Dalam Pengiriman"
-                                  ? "bg-blue-600 text-white"
-                                  : "bg-yellow-600 text-white"
-                            }
-                          >
-                            {order.status}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-gray-300 text-sm">{order.items.join(", ")}</p>
-                            <p className="text-white font-semibold">{formatPrice(order.total)}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-slate-500 text-slate-300 hover:bg-slate-500 hover:text-white"
-                          >
-                            Lihat Detail
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             {/* Address Tab */}
             <TabsContent value="address">
               <Card className="bg-slate-700 border-slate-600">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-white flex items-center">
-                      <MapPin className="h-5 w-5 mr-2" />
-                      Alamat Pengiriman
-                    </CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-slate-500 text-slate-300 hover:bg-slate-600 hover:text-white"
-                    >
-                      Tambah Alamat
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-slate-600 p-4 rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <h4 className="text-white font-semibold mb-1">Alamat Utama</h4>
-                        <p className="text-gray-300 mb-2">{profileData.name}</p>
-                        <p className="text-gray-300 mb-2">{profileData.phone}</p>
-                        <p className="text-gray-300">{profileData.address}</p>
-                        <Badge className="mt-2 bg-blue-600 text-white">Default</Badge>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="border-slate-500 text-slate-300 hover:bg-slate-500 hover:text-white"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                <CardContent className="p-6">
+                  <AddressList
+                    addresses={addresses}
+                    onCreateAddress={handleCreateAddress}
+                    onUpdateAddress={handleUpdateAddress}
+                    onDeleteAddress={handleDeleteAddress}
+                    onSetDefault={handleSetDefaultAddress}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
