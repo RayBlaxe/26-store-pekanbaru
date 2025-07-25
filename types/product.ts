@@ -155,6 +155,7 @@ export interface CreateOrderRequest {
     state: string;
     postal_code: string;
   };
+  courier_service?: string;
   payment_method?: string;
   notes?: string;
 }

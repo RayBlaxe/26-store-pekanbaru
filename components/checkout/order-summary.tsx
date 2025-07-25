@@ -6,12 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { ShoppingBag } from "lucide-react"
 import { Cart, Address } from "@/types/product"
+import { CourierService } from "@/services/shipping.service"
 import { formatPrice } from "@/lib/utils"
 
 interface OrderSummaryProps {
   cart: Cart
   selectedAddress: Address | null
   shippingCost: number
+  shippingService?: CourierService
   isLoading?: boolean
 }
 
@@ -19,6 +21,7 @@ export default function OrderSummary({
   cart,
   selectedAddress,
   shippingCost,
+  shippingService,
   isLoading = false
 }: OrderSummaryProps) {
   const subtotal = cart.total
@@ -32,7 +35,7 @@ export default function OrderSummary({
   }
 
   return (
-    <Card className="bg-slate-700 border-slate-600 sticky top-4">
+    <Card className="bg-slate-700 border-slate-600 top-4">
       <CardHeader>
         <CardTitle className="text-white flex items-center gap-2">
           <ShoppingBag className="h-5 w-5" />
@@ -99,8 +102,8 @@ export default function OrderSummary({
             <span>{formatPrice(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate-300">
-            <span>Ongkos Kirim</span>
-            <span>{formatPrice(shippingCost)}</span>
+            <span>Ongkos Kirim {shippingService && `(${shippingService.name})`}</span>
+            <span>{shippingCost > 0 ? formatPrice(shippingCost) : 'Pilih layanan pengiriman'}</span>
           </div>
           <Separator className="bg-slate-600" />
           <div className="flex justify-between text-white font-semibold text-lg">

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import CustomerLayout from "@/components/customer-layout"
 import ShippingForm from "@/components/checkout/shipping-form"
+import ShippingCalculator from "@/components/checkout/shipping-calculator"
 import OrderSummary from "@/components/checkout/order-summary"
 import PaymentButton from "@/components/checkout/payment-button"
 import { Button } from "@/components/ui/button"
@@ -14,6 +15,7 @@ import { ArrowLeft, ShoppingCart, AlertCircle } from "lucide-react"
 import { useCartStore } from "@/stores/cart.store"
 import { useAuthStore } from "@/stores/auth-store"
 import { addressService } from "@/services/address.service"
+import { shippingService, type ShippingCost, type CourierService } from "@/services/shipping.service"
 import { Address } from "@/types/product"
 import { toast } from "sonner"
 
@@ -25,7 +27,7 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState<Address[]>([])
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null)
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true)
-  const [shippingCost] = useState(15000) // Fixed shipping cost for now
+  const [selectedShipping, setSelectedShipping] = useState<(ShippingCost & { service: CourierService }) | null>(null)
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -64,6 +66,10 @@ export default function CheckoutPage() {
   const handleAddressAdd = (address: Address) => {
     setAddresses(prev => [...prev, address])
     setSelectedAddress(address)
+  }
+
+  const handleShippingSelect = (shippingData: ShippingCost & { service: CourierService }) => {
+    setSelectedShipping(shippingData)
   }
 
   const handleOrderCreated = (orderId: number) => {
@@ -175,6 +181,17 @@ export default function CheckoutPage() {
                 isLoading={cartLoading}
               />
 
+              {/* Shipping Calculator */}
+              {selectedAddress && (
+                <ShippingCalculator
+                  destinationCity={selectedAddress.city}
+                  destinationPostalCode={selectedAddress.postal_code}
+                  onShippingSelect={handleShippingSelect}
+                  selectedService={selectedShipping?.service.code}
+                  disabled={cartLoading}
+                />
+              )}
+
               {/* Order Review */}
               <Card className="bg-slate-700 border-slate-600">
                 <CardHeader>
@@ -222,16 +239,18 @@ export default function CheckoutPage() {
               <OrderSummary
                 cart={cart}
                 selectedAddress={selectedAddress}
-                shippingCost={shippingCost}
+                shippingCost={selectedShipping?.total_cost || 0}
+                shippingService={selectedShipping?.service}
                 isLoading={cartLoading}
               />
 
               <PaymentButton
                 cart={cart}
                 selectedAddress={selectedAddress}
-                shippingCost={shippingCost}
+                shippingCost={selectedShipping?.total_cost || 0}
+                courierService={selectedShipping?.service.code}
                 onOrderCreated={handleOrderCreated}
-                disabled={cartLoading || !selectedAddress}
+                disabled={cartLoading || !selectedAddress || !selectedShipping}
               />
             </div>
           </div>

@@ -16,6 +16,7 @@ interface PaymentButtonProps {
   cart: Cart
   selectedAddress: Address | null
   shippingCost: number
+  courierService?: string
   onOrderCreated?: (orderId: number) => void
   disabled?: boolean
 }
@@ -24,6 +25,7 @@ export default function PaymentButton({
   cart,
   selectedAddress,
   shippingCost,
+  courierService,
   onOrderCreated,
   disabled = false
 }: PaymentButtonProps) {
@@ -39,13 +41,20 @@ export default function PaymentButton({
     return (
       selectedAddress &&
       cart.items.length > 0 &&
+      shippingCost > 0 &&
       paymentService.validatePaymentAmount(totalAmount)
     )
   }
 
   const handlePayment = async () => {
     if (!isFormValid() || !selectedAddress) {
-      toast.error("Mohon lengkapi alamat pengiriman")
+      if (!selectedAddress) {
+        toast.error("Mohon pilih alamat pengiriman")
+      } else if (shippingCost <= 0) {
+        toast.error("Mohon pilih layanan pengiriman")
+      } else {
+        toast.error("Mohon lengkapi semua informasi yang diperlukan")
+      }
       return
     }
 
@@ -63,6 +72,7 @@ export default function PaymentButton({
           state: selectedAddress.state,
           postal_code: selectedAddress.postal_code,
         },
+        courier_service: courierService || 'regular',
         payment_method: 'midtrans',
         notes: `Order dari website 26 Store Pekanbaru - Total: ${paymentService.formatCurrency(totalAmount)}`
       }
