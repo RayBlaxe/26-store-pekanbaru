@@ -51,6 +51,11 @@ export const getLowStockProducts = async (threshold: number = 10) => {
   return response.data
 }
 
+export const getProductStatistics = async () => {
+  const response = await api.get('/admin/products-statistics')
+  return response.data
+}
+
 // Products APIs
 export const getProducts = async (params?: {
   page?: number
@@ -61,7 +66,7 @@ export const getProducts = async (params?: {
 }) => {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
-  if (params?.limit) queryParams.append('limit', params.limit.toString())
+  if (params?.limit) queryParams.append('per_page', params.limit.toString())
   if (params?.search) queryParams.append('search', params.search)
   if (params?.category) queryParams.append('category', params.category)
   if (params?.inStock !== undefined) queryParams.append('inStock', params.inStock.toString())
@@ -257,13 +262,13 @@ export const exportUsers = async (format: 'csv' | 'excel' = 'csv') => {
 
 // Reports APIs
 export const getSalesReport = async (params?: {
-  startDate?: string
-  endDate?: string
-  period?: '7d' | '30d' | '90d' | '6m' | '1y'
+  start_date?: string
+  end_date?: string
+  period?: '7days' | '30days' | '90days' | '6months' | '1year' | 'custom'
 }) => {
   const queryParams = new URLSearchParams()
-  if (params?.startDate) queryParams.append('startDate', params.startDate)
-  if (params?.endDate) queryParams.append('endDate', params.endDate)
+  if (params?.start_date) queryParams.append('start_date', params.start_date)
+  if (params?.end_date) queryParams.append('end_date', params.end_date)
   if (params?.period) queryParams.append('period', params.period)
 
   const response = await api.get(`/admin/reports/sales?${queryParams}`)

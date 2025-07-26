@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DataTable } from "@/components/admin/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 import { Plus, Edit, Trash2, Eye, Package, AlertTriangle, Filter } from "lucide-react"
-import { getProducts, deleteProduct, bulkDeleteProducts } from "@/services/admin.service"
+import { getProducts, deleteProduct, bulkDeleteProducts, getProductStatistics } from "@/services/admin.service"
 import { toast } from "@/hooks/use-toast"
 
 interface Product {
@@ -45,6 +45,12 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<string | null>(null)
+  const [statistics, setStatistics] = useState({
+    total_products: 0,
+    active_products: 0,
+    low_stock_products: 0,
+    out_of_stock_products: 0
+  })
   const [filters, setFilters] = useState({
     category: "all",
     inStock: "all"
@@ -54,6 +60,7 @@ export default function ProductsPage() {
     try {
       setLoading(true)
       const response = await getProducts({
+        limit: 100, // Request up to 100 products per page
         category: filters.category !== "all" ? filters.category : undefined,
         inStock: filters.inStock !== "all" ? filters.inStock === "true" : undefined
       })
@@ -72,14 +79,31 @@ export default function ProductsPage() {
     }
   }
 
+  const fetchStatistics = async () => {
+    try {
+      const response = await getProductStatistics()
+      setStatistics(response)
+    } catch (error) {
+      console.error('Error fetching statistics:', error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch product statistics.",
+        variant: "destructive",
+      })
+    }
+  }
+
   useEffect(() => {
     fetchProducts()
+    fetchStatistics()
   }, [filters])
 
   const handleDelete = async (id: string) => {
     try {
       await deleteProduct(id)
       setProducts(prev => prev.filter(p => p.id !== id))
+      // Refresh statistics after deletion
+      fetchStatistics()
       toast({
         title: "Product deleted",
         description: "The product has been successfully deleted.",
@@ -211,9 +235,6 @@ export default function ProductsPage() {
     },
   ]
 
-  const lowStockCount = products.filter(p => p.stock <= 10).length
-  const activeProductsCount = products.filter(p => p.isActive ?? p.is_active ?? false).length
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -238,7 +259,7 @@ export default function ProductsPage() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{products.length}</div>
+            <div className="text-2xl font-bold">{statistics.total_products}</div>
           </CardContent>
         </Card>
         
@@ -248,7 +269,7 @@ export default function ProductsPage() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeProductsCount}</div>
+            <div className="text-2xl font-bold">{statistics.active_products}</div>
           </CardContent>
         </Card>
         
@@ -258,7 +279,8 @@ export default function ProductsPage() {
             <AlertTriangle className="h-4 w-4 text-orange-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{lowStockCount}</div>
+            <div className="text-2xl font-bold text-orange-600">{statistics.low_stock_products}</div>
+            <p className="text-xs text-muted-foreground mt-1">Products with less than 10 stock</p>
           </CardContent>
         </Card>
       </div>
