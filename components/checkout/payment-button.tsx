@@ -9,6 +9,7 @@ import { Cart, Address, CreateOrderRequest } from "@/types/product"
 import { orderService } from "@/services/order.service"
 import { paymentService } from "@/services/payment.service"
 import { useCartStore } from "@/stores/cart.store"
+import { useAuthStore } from "@/stores/auth-store"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -33,6 +34,7 @@ export default function PaymentButton({
   const [paymentStep, setPaymentStep] = useState<'ready' | 'creating' | 'paying' | 'success' | 'error'>('ready')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const { clearCart } = useCartStore()
+  const { user } = useAuthStore()
   const router = useRouter()
 
   const totalAmount = cart.total + shippingCost
@@ -65,11 +67,11 @@ export default function PaymentButton({
 
       const orderData: CreateOrderRequest = {
         shipping_address: {
-          name: selectedAddress.name,
+          name: user?.name || 'Customer',
           phone: selectedAddress.phone,
-          address: selectedAddress.street,
+          address: selectedAddress.address,
           city: selectedAddress.city,
-          state: selectedAddress.state,
+          state: selectedAddress.province, // Address uses 'province' not 'state'
           postal_code: selectedAddress.postal_code,
         },
         courier_service: courierService || 'regular',
