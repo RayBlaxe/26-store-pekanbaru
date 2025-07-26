@@ -108,6 +108,16 @@ export default function OrdersPage() {
     }
   }
 
+  const handleMarkAsReceived = async (orderId: number) => {
+    try {
+      await orderService.updateOrderStatus(orderId, 'delivered')
+      toast.success('Pesanan berhasil ditandai sebagai diterima')
+      loadOrders(true)
+    } catch (error: any) {
+      toast.error(error.message || 'Gagal menandai pesanan sebagai diterima')
+    }
+  }
+
   const filteredOrders = orders.filter(order => 
     order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.items.some(item => 
@@ -267,6 +277,7 @@ export default function OrdersPage() {
                       onViewDetails={handleViewDetails}
                       onReorder={handleReorder}
                       onCancelOrder={handleCancelOrder}
+                      onMarkAsReceived={handleMarkAsReceived}
                     />
                   ))}
                 </div>

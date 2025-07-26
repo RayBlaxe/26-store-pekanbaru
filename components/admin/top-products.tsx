@@ -9,10 +9,11 @@ import { ArrowRight } from "lucide-react"
 interface Product {
   id: string
   name: string
-  image: string
-  soldCount: number
-  revenue: number
-  stock: number
+  sku: string
+  image: string | null
+  total_sold: number
+  total_revenue: number
+  current_stock: number
 }
 
 interface TopProductsProps {
@@ -68,7 +69,7 @@ export function TopProducts({ products, loading }: TopProductsProps) {
               <div key={product.id} className="flex items-center space-x-4">
                 <div className="relative w-12 h-12">
                   <Image
-                    src={product.image}
+                    src={product.image || '/placeholder.jpg'}
                     alt={product.name}
                     fill
                     className="object-cover rounded"
@@ -82,7 +83,7 @@ export function TopProducts({ products, loading }: TopProductsProps) {
                     {product.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    Stock: {product.stock} units
+                    Stock: {product.current_stock} units
                   </p>
                 </div>
                 <div className="text-right">
@@ -90,10 +91,10 @@ export function TopProducts({ products, loading }: TopProductsProps) {
                     <span className="text-sm font-bold text-primary">#{index + 1}</span>
                   </div>
                   <p className="font-medium">
-                    {product.soldCount} sold
+                    {product.total_sold} sold
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Rp {product.revenue.toLocaleString('id-ID')}
+                    Rp {product.total_revenue.toLocaleString('id-ID')}
                   </p>
                 </div>
               </div>

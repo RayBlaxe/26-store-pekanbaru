@@ -76,16 +76,19 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
     const fetchCategories = async () => {
       try {
         const response = await getCategories()
+        console.log('Categories response:', response)
         setCategories(response.data || [])
       } catch (error) {
         console.error('Error fetching categories:', error)
         // Set mock categories for development
-        setCategories([
+        const mockCategories = [
           { id: '1', name: 'Sepatu' },
           { id: '2', name: 'Baju' },
           { id: '3', name: 'Celana' },
           { id: '4', name: 'Aksesoris' },
-        ])
+        ]
+        console.log('Using mock categories:', mockCategories)
+        setCategories(mockCategories)
       }
     }
 
@@ -155,15 +158,22 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isLoading}>
+                      <Select 
+                        onValueChange={(value) => {
+                          console.log('Category selected:', value)
+                          field.onChange(value)
+                        }} 
+                        value={field.value} 
+                        disabled={isLoading || categories.length === 0}
+                      >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select category" />
+                            <SelectValue placeholder={categories.length === 0 ? "Loading categories..." : "Select category"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {categories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
+                            <SelectItem key={category.id} value={String(category.id)}>
                               {category.name}
                             </SelectItem>
                           ))}

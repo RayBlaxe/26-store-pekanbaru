@@ -1,6 +1,28 @@
 import axios from 'axios'
+import Cookies from 'js-cookie'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
+
+// Create axios instance with authentication (same as admin service)
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  withCredentials: true,
+  headers: {
+    'Accept': 'application/json',
+  },
+})
+
+// Add auth token to requests
+api.interceptors.request.use(
+  (config) => {
+    const token = Cookies.get('auth-token')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+    return config
+  },
+  (error) => Promise.reject(error)
+)
 
 export interface UploadResponse {
   url: string
@@ -11,10 +33,10 @@ export interface UploadResponse {
 
 export const uploadSingleImage = async (file: File, folder: string = 'products'): Promise<UploadResponse> => {
   const formData = new FormData()
-  formData.append('file', file)
+  formData.append('image', file) // Laravel expects 'image' field
   formData.append('folder', folder)
 
-  const response = await axios.post(`${API_BASE_URL}/upload/image`, formData, {
+  const response = await api.post('/admin/products/upload-image', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

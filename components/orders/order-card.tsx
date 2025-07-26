@@ -14,6 +14,7 @@ interface OrderCardProps {
   onViewDetails: (orderId: number) => void
   onReorder?: (orderId: number) => void
   onCancelOrder?: (orderId: number) => void
+  onMarkAsReceived?: (orderId: number) => void
   showActions?: boolean
 }
 
@@ -22,6 +23,7 @@ export default function OrderCard({
   onViewDetails,
   onReorder,
   onCancelOrder,
+  onMarkAsReceived,
   showActions = true
 }: OrderCardProps) {
   const getProductImage = (item: any) => {
@@ -41,6 +43,7 @@ export default function OrderCard({
 
   const canCancel = order.status === 'pending' && order.payment_status !== 'paid'
   const canReorder = order.status === 'delivered' || order.status === 'cancelled'
+  const canMarkAsReceived = order.status === 'shipped' && order.payment_status === 'paid'
 
   return (
     <Card className="bg-slate-700 border-slate-600 hover:border-slate-500 transition-colors">
@@ -150,6 +153,17 @@ export default function OrderCard({
                 className="border-green-500 text-green-400 hover:bg-green-600 hover:text-white"
               >
                 Pesan Lagi
+              </Button>
+            )}
+            
+            {canMarkAsReceived && onMarkAsReceived && (
+              <Button
+                onClick={() => onMarkAsReceived(order.id)}
+                variant="outline"
+                size="sm"
+                className="border-blue-500 text-blue-400 hover:bg-blue-600 hover:text-white"
+              >
+                Tandai Diterima
               </Button>
             )}
             

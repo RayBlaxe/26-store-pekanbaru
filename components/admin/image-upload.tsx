@@ -6,7 +6,7 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X, Upload, ImageIcon } from "lucide-react"
-import { validateImageFiles, createImagePreview, formatFileSize } from "@/services/upload.service"
+import { validateImageFiles, createImagePreview, formatFileSize, uploadSingleImage } from "@/services/upload.service"
 
 interface ImageUploadProps {
   value: string[]
@@ -39,38 +39,78 @@ export function ImageUpload({ value = [], onChange, maxFiles = 5, disabled }: Im
       return
     }
 
-    // Create previews
+    // Create previews and automatically upload
     const newPreviews: ImagePreview[] = []
+    const newUrls: string[] = []
+    
     for (const file of acceptedFiles) {
       try {
         const preview = await createImagePreview(file)
-        newPreviews.push({
+        
+        // Add preview immediately
+        const previewItem: ImagePreview = {
           file,
           preview,
-          uploading: false,
-          uploaded: false
-        })
+          uploading: true,
+          uploaded: false,
+        }
+        
+        newPreviews.push(previewItem)
+        setPreviews(prev => [...prev, previewItem])
+        
+        // Upload to server
+        try {
+          const uploadResponse = await uploadSingleImage(file, 'products')
+          
+          // Update preview with upload result
+          previewItem.uploading = false
+          previewItem.uploaded = true
+          previewItem.url = uploadResponse.url
+          
+          newUrls.push(uploadResponse.url)
+          setPreviews(prev => prev.map(p => p === previewItem ? previewItem : p))
+          
+        } catch (uploadError) {
+          console.error('Upload failed:', uploadError)
+          previewItem.uploading = false
+          previewItem.uploaded = false
+          previewItem.error = 'Upload failed'
+          setPreviews(prev => prev.map(p => p === previewItem ? previewItem : p))
+        }
+        
       } catch (error) {
         console.error('Error creating preview:', error)
       }
     }
 
-    setPreviews(prev => [...prev, ...newPreviews].slice(0, maxFiles))
-  }, [disabled, maxFiles])
+    // Update form value with successful uploads
+    if (newUrls.length > 0) {
+      onChange([...value, ...newUrls])
+    }
+  }, [disabled, maxFiles, value, onChange])
 
   const { getRootProps, getInputProps, isDragActive: dropzoneIsDragActive } = useDropzone({
     onDrop,
     accept: {
       'image/*': ['.jpeg', '.jpg', '.png', '.webp']
     },
-    maxFiles: maxFiles - value.length - previews.length,
+    maxFiles: maxFiles - value.length,
     disabled,
     onDragEnter: () => setIsDragActive(true),
     onDragLeave: () => setIsDragActive(false),
   })
 
   const removePreview = (index: number) => {
+    const previewToRemove = previews[index]
+    
+    // Remove from previews
     setPreviews(prev => prev.filter((_, i) => i !== index))
+    
+    // Also remove from form value if it was uploaded
+    if (previewToRemove.uploaded && previewToRemove.url) {
+      const newValue = value.filter(url => url !== previewToRemove.url)
+      onChange(newValue)
+    }
   }
 
   const removeExisting = (index: number) => {
@@ -78,50 +118,7 @@ export function ImageUpload({ value = [], onChange, maxFiles = 5, disabled }: Im
     onChange(newValue)
   }
 
-  const uploadPreviews = async () => {
-    // This would typically upload to your server
-    // For now, we'll simulate the upload process
-    const uploadPromises = previews.map(async (preview, index) => {
-      if (preview.uploaded) return preview
-
-      setPreviews(prev => prev.map((p, i) => 
-        i === index ? { ...p, uploading: true } : p
-      ))
-
-      try {
-        // Simulate upload delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        
-        // In a real app, you'd call your upload service here
-        const mockUrl = `/uploads/${Date.now()}-${preview.file.name}`
-        
-        setPreviews(prev => prev.map((p, i) => 
-          i === index ? { ...p, uploading: false, uploaded: true, url: mockUrl } : p
-        ))
-
-        return { ...preview, uploaded: true, url: mockUrl }
-      } catch (error) {
-        setPreviews(prev => prev.map((p, i) => 
-          i === index ? { ...p, uploading: false, error: 'Upload failed' } : p
-        ))
-        throw error
-      }
-    })
-
-    try {
-      const results = await Promise.all(uploadPromises)
-      const uploadedUrls = results
-        .filter(r => r.uploaded && r.url)
-        .map(r => r.url!)
-      
-      onChange([...value, ...uploadedUrls])
-      setPreviews([])
-    } catch (error) {
-      console.error('Upload error:', error)
-    }
-  }
-
-  const totalImages = value.length + previews.length
+  const totalImages = value.length
   const canAddMore = totalImages < maxFiles
 
   return (
@@ -202,14 +199,6 @@ export function ImageUpload({ value = [], onChange, maxFiles = 5, disabled }: Im
               </Card>
             ))}
           </div>
-          
-          <Button 
-            onClick={uploadPreviews}
-            disabled={previews.some(p => p.uploading) || previews.every(p => p.uploaded)}
-            className="w-full"
-          >
-            {previews.some(p => p.uploading) ? 'Uploading...' : 'Upload Images'}
-          </Button>
         </div>
       )}
 

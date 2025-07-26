@@ -27,27 +27,27 @@ api.interceptors.request.use(
 
 // Dashboard APIs
 export const getDashboardStats = async () => {
-  const response = await api.get('/admin/dashboard/stats')
+  const response = await api.get('/admin/stats')
   return response.data
 }
 
 export const getSalesChart = async (period: '7d' | '30d' | '90d' = '30d') => {
-  const response = await api.get(`/admin/dashboard/sales-chart?period=${period}`)
+  const response = await api.get(`/admin/sales-chart?period=${period}`)
   return response.data
 }
 
 export const getRecentOrders = async (limit: number = 10) => {
-  const response = await api.get(`/admin/dashboard/recent-orders?limit=${limit}`)
+  const response = await api.get(`/admin/recent-orders?limit=${limit}`)
   return response.data
 }
 
 export const getTopProducts = async (limit: number = 5) => {
-  const response = await api.get(`/admin/dashboard/top-products?limit=${limit}`)
+  const response = await api.get(`/admin/top-products?limit=${limit}`)
   return response.data
 }
 
 export const getLowStockProducts = async (threshold: number = 10) => {
-  const response = await api.get(`/admin/dashboard/low-stock?threshold=${threshold}`)
+  const response = await api.get(`/admin/products?filter=low-stock&threshold=${threshold}`)
   return response.data
 }
 
@@ -76,12 +76,30 @@ export const getProduct = async (id: string) => {
 }
 
 export const createProduct = async (productData: any) => {
-  const response = await api.post('/admin/products', productData)
+  // Map frontend field names to backend field names
+  const mappedData = {
+    ...productData,
+    category_id: productData.category, // Map category to category_id
+  }
+  
+  // Remove the original category field since we mapped it to category_id
+  delete mappedData.category
+  
+  const response = await api.post('/admin/products', mappedData)
   return response.data
 }
 
 export const updateProduct = async (id: string, productData: any) => {
-  const response = await api.put(`/admin/products/${id}`, productData)
+  // Map frontend field names to backend field names
+  const mappedData = {
+    ...productData,
+    category_id: productData.category, // Map category to category_id
+  }
+  
+  // Remove the original category field since we mapped it to category_id
+  delete mappedData.category
+  
+  const response = await api.put(`/admin/products/${id}`, mappedData)
   return response.data
 }
 
@@ -105,17 +123,19 @@ export const getOrders = async (params?: {
   page?: number
   limit?: number
   status?: string
+  payment_status?: string
   search?: string
   startDate?: string
   endDate?: string
 }) => {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
-  if (params?.limit) queryParams.append('limit', params.limit.toString())
+  if (params?.limit) queryParams.append('per_page', params.limit.toString())
   if (params?.status) queryParams.append('status', params.status)
+  if (params?.payment_status) queryParams.append('payment_status', params.payment_status)
   if (params?.search) queryParams.append('search', params.search)
-  if (params?.startDate) queryParams.append('startDate', params.startDate)
-  if (params?.endDate) queryParams.append('endDate', params.endDate)
+  if (params?.startDate) queryParams.append('date_from', params.startDate)
+  if (params?.endDate) queryParams.append('date_to', params.endDate)
 
   const response = await api.get(`/admin/orders?${queryParams}`)
   return response.data
@@ -127,7 +147,7 @@ export const getOrder = async (id: string) => {
 }
 
 export const updateOrderStatus = async (id: string, status: string, notes?: string) => {
-  const response = await api.patch(`/admin/orders/${id}/status`, { status, notes })
+  const response = await api.put(`/admin/orders/${id}/status`, { status, notes })
   return response.data
 }
 
@@ -232,5 +252,85 @@ export const exportUsers = async (format: 'csv' | 'excel' = 'csv') => {
   const response = await api.get(`/admin/export/users?format=${format}`, {
     responseType: 'blob'
   })
+  return response.data
+}
+
+// Reports APIs
+export const getSalesReport = async (params?: {
+  startDate?: string
+  endDate?: string
+  period?: '7d' | '30d' | '90d' | '6m' | '1y'
+}) => {
+  const queryParams = new URLSearchParams()
+  if (params?.startDate) queryParams.append('startDate', params.startDate)
+  if (params?.endDate) queryParams.append('endDate', params.endDate)
+  if (params?.period) queryParams.append('period', params.period)
+
+  const response = await api.get(`/admin/reports/sales?${queryParams}`)
+  return response.data
+}
+
+export const getProductPerformance = async (params?: {
+  startDate?: string
+  endDate?: string
+  limit?: number
+}) => {
+  const queryParams = new URLSearchParams()
+  if (params?.startDate) queryParams.append('startDate', params.startDate)
+  if (params?.endDate) queryParams.append('endDate', params.endDate)
+  if (params?.limit) queryParams.append('limit', params.limit.toString())
+
+  const response = await api.get(`/admin/reports/products?${queryParams}`)
+  return response.data
+}
+
+export const getCustomerAnalytics = async (params?: {
+  startDate?: string
+  endDate?: string
+}) => {
+  const queryParams = new URLSearchParams()
+  if (params?.startDate) queryParams.append('startDate', params.startDate)
+  if (params?.endDate) queryParams.append('endDate', params.endDate)
+
+  const response = await api.get(`/admin/reports/customers?${queryParams}`)
+  return response.data
+}
+
+export const getRevenueAnalytics = async (params?: {
+  period?: 'daily' | 'weekly' | 'monthly' | 'yearly'
+  startDate?: string
+  endDate?: string
+}) => {
+  const queryParams = new URLSearchParams()
+  if (params?.period) queryParams.append('period', params.period)
+  if (params?.startDate) queryParams.append('startDate', params.startDate)
+  if (params?.endDate) queryParams.append('endDate', params.endDate)
+
+  const response = await api.get(`/admin/reports/revenue?${queryParams}`)
+  return response.data
+}
+
+// Shipping Management
+export const updateShippingInfo = async (orderId: string, shippingData: {
+  trackingNumber?: string
+  carrier?: string
+  estimatedDelivery?: string
+}) => {
+  const response = await api.patch(`/admin/orders/${orderId}/shipping`, shippingData)
+  return response.data
+}
+
+export const getShippingProviders = async () => {
+  const response = await api.get('/admin/shipping/providers')
+  return response.data
+}
+
+export const calculateShippingCost = async (data: {
+  origin: string
+  destination: string
+  weight: number
+  courier?: string
+}) => {
+  const response = await api.post('/admin/shipping/calculate', data)
   return response.data
 }

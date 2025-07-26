@@ -16,6 +16,8 @@ import {
   LogOut,
   Menu,
   X,
+  Truck,
+  LayoutDashboard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -24,12 +26,11 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-  { name: "Dashboard", href: "/admin", icon: BarChart3 },
-  { name: "Data Produk", href: "/admin/products", icon: Package },
-  { name: "Entry Penjualan", href: "/admin/sales", icon: ShoppingCart },
-  { name: "Pelanggan", href: "/admin/customers", icon: Users },
-  { name: "Admin", href: "/admin/admins", icon: UserCog },
-  { name: "Laporan", href: "/admin/reports", icon: BarChart3 },
+    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Products", href: "/admin/products", icon: Package },
+  { name: "Users", href: "/admin/users", icon: Users },
+  { name: "Reports", href: "/admin/reports", icon: BarChart3 },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {

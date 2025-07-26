@@ -180,6 +180,18 @@ export default function OrderDetailsPage() {
     }
   }
 
+  const handleMarkAsReceived = async () => {
+    if (!order) return
+
+    try {
+      await orderService.updateOrderStatus(order.id, 'delivered')
+      toast.success('Pesanan berhasil ditandai sebagai diterima')
+      loadOrder(true)
+    } catch (error: any) {
+      toast.error(error.message || 'Gagal menandai pesanan sebagai diterima')
+    }
+  }
+
   const getProductImage = (item: any) => {
     // Handle different API response structures
     if (item.product) {
@@ -209,6 +221,7 @@ export default function OrderDetailsPage() {
 
   const canPay = order?.payment_status === 'pending' && order?.status !== 'cancelled'
   const canCancel = order?.status === 'pending' && order?.payment_status !== 'paid'
+  const canMarkAsReceived = order?.status === 'shipped' && order?.payment_status === 'paid'
   const statusProgress = order ? getStatusProgress(order.status) : 0
   const statusSteps = getStatusSteps()
 
@@ -306,6 +319,23 @@ export default function OrderDetailsPage() {
                   className="bg-yellow-600 hover:bg-yellow-700 text-white ml-4"
                 >
                   {isProcessingPayment ? "Memproses..." : "Bayar Sekarang"}
+                </Button>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Mark as Received Alert */}
+          {canMarkAsReceived && (
+            <Alert className="border-green-500 bg-green-500/10 mb-6">
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription className="text-green-300 flex items-center justify-between">
+                <span>Pesanan telah dikirim. Klik tombol di bawah jika Anda sudah menerima pesanan.</span>
+                <Button
+                  onClick={handleMarkAsReceived}
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 text-white ml-4"
+                >
+                  Tandai Diterima
                 </Button>
               </AlertDescription>
             </Alert>

@@ -8,14 +8,12 @@ import { ArrowRight } from "lucide-react"
 
 interface Order {
   id: string
-  orderNumber: string
-  customer: {
-    name: string
-    email: string
-  }
-  total: number
+  order_number: string
+  customer_name: string
+  customer_email: string
+  total_amount: number
   status: string
-  createdAt: string
+  created_at: string
 }
 
 interface RecentOrdersProps {
@@ -80,13 +78,13 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
                     href={`/admin/orders/${order.id}`}
                     className="font-medium hover:underline"
                   >
-                    #{order.orderNumber}
+                    #{order.order_number}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    {order.customer.name} • {order.customer.email}
+                    {order.customer_name} • {order.customer_email}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {new Date(order.createdAt).toLocaleDateString('id-ID', {
+                    {new Date(order.created_at).toLocaleDateString('id-ID', {
                       year: 'numeric',
                       month: 'short',
                       day: 'numeric',
@@ -97,7 +95,7 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
                 </div>
                 <div className="text-right">
                   <p className="font-medium">
-                    Rp {order.total.toLocaleString('id-ID')}
+                    Rp {order.total_amount.toLocaleString('id-ID')}
                   </p>
                   <Badge 
                     className={`${

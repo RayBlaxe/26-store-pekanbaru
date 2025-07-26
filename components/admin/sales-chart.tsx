@@ -31,7 +31,7 @@ interface SalesChartProps {
   data: {
     date: string
     sales: number
-    orders: number
+    orders_count: number
   }[]
   period: '7d' | '30d' | '90d'
   onPeriodChange: (period: '7d' | '30d' | '90d') => void
@@ -60,7 +60,7 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
       },
       {
         label: "Orders",
-        data: data.map((item) => item.orders),
+        data: data.map((item) => item.orders_count),
         borderColor: "hsl(var(--secondary))",
         backgroundColor: "hsl(var(--secondary) / 0.1)",
         tension: 0.3,
