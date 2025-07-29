@@ -167,14 +167,12 @@ export const getUsers = async (params?: {
   limit?: number
   search?: string
   role?: string
-  status?: string
 }) => {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
   if (params?.limit) queryParams.append('per_page', params.limit.toString())
   if (params?.search) queryParams.append('search', params.search)
   if (params?.role) queryParams.append('role', params.role)
-  if (params?.status) queryParams.append('status', params.status)
 
   const response = await api.get(`/admin/users?${queryParams}`)
   return response.data

@@ -86,9 +86,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
               return
             }
             
-            // If customer user is on admin routes, redirect to home
-            if (user.role === 'customer' && currentPath.startsWith('/admin')) {
+            // If superadmin user is on customer routes, redirect to superadmin
+            if (user.role === 'superadmin' && ['/dashboard', '/profile', '/orders', '/checkout', '/cart'].some(route => currentPath.startsWith(route))) {
+              window.location.href = '/superadmin'
+              return
+            }
+            
+            // If customer user is on admin/superadmin routes, redirect to home
+            if (user.role === 'customer' && (currentPath.startsWith('/admin') || currentPath.startsWith('/superadmin'))) {
               window.location.href = '/'
+              return
+            }
+
+            // If admin user is on superadmin routes, redirect to admin
+            if (user.role === 'admin' && currentPath.startsWith('/superadmin')) {
+              window.location.href = '/admin'
               return
             }
           }
@@ -110,7 +122,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       dispatch({ type: 'AUTH_SUCCESS', payload: user })
       
       // Determine redirect path based on user role
-      const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard'
+      const redirectTo = user.role === 'superadmin' ? '/superadmin' : user.role === 'admin' ? '/admin' : '/dashboard'
       return { redirectTo }
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Login failed' })
@@ -125,7 +137,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       dispatch({ type: 'AUTH_SUCCESS', payload: user })
       
       // Determine redirect path based on user role (new registrations are usually customers)
-      const redirectTo = user.role === 'admin' ? '/admin' : '/dashboard'
+      const redirectTo = user.role === 'superadmin' ? '/superadmin' : user.role === 'admin' ? '/admin' : '/dashboard'
       return { redirectTo }
     } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Registration failed' })

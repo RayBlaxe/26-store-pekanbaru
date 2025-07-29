@@ -262,10 +262,6 @@ export default function UserDetailPage() {
               <p className="text-sm text-gray-400">Role</p>
               <p className="text-white capitalize">{user.role}</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-400">Status Akun</p>
-              {getStatusBadge(user.status || 'inactive')}
-            </div>
           </CardContent>
         </Card>
 

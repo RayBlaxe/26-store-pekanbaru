@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 // Define protected routes
 const protectedRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
 const adminRoutes = ['/admin']
+const superadminRoutes = ['/superadmin']
 const customerRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
 const authRoutes = ['/login', '/register']
 
@@ -26,30 +27,40 @@ export function middleware(request: NextRequest) {
   // Check if current route is protected
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route))
   const isAdminRoute = adminRoutes.some(route => pathname.startsWith(route))
+  const isSuperadminRoute = superadminRoutes.some(route => pathname.startsWith(route))
   const isCustomerRoute = customerRoutes.some(route => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some(route => pathname.startsWith(route))
 
   // If user is not authenticated and trying to access protected route
-  if ((isProtectedRoute || isAdminRoute) && !token) {
+  if ((isProtectedRoute || isAdminRoute || isSuperadminRoute) && !token) {
     const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('callbackUrl', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  // If user is authenticated but not admin and trying to access admin routes
-  if (isAdminRoute && token && userRole !== 'admin') {
+  // If user is authenticated but not superadmin and trying to access superadmin routes
+  if (isSuperadminRoute && token && userRole !== 'superadmin') {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // If user is admin and trying to access customer routes, redirect to admin
-  if (isCustomerRoute && token && userRole === 'admin') {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  // If user is authenticated but not admin/superadmin and trying to access admin routes
+  if (isAdminRoute && token && !['admin', 'superadmin'].includes(userRole)) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
-  // Only redirect admins from home page to admin panel
-  // Regular customers should be able to access the home page (shop)
-  if (pathname === '/' && token && userRole === 'admin') {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  // If user is admin/superadmin and trying to access customer routes, redirect appropriately
+  if (isCustomerRoute && token && ['admin', 'superadmin'].includes(userRole)) {
+    const redirectUrl = userRole === 'superadmin' ? '/superadmin' : '/admin'
+    return NextResponse.redirect(new URL(redirectUrl, request.url))
+  }
+
+  // Redirect from home page based on role
+  if (pathname === '/' && token) {
+    if (userRole === 'superadmin') {
+      return NextResponse.redirect(new URL('/superadmin', request.url))
+    } else if (userRole === 'admin') {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
   }
 
   // If user is authenticated and trying to access auth routes

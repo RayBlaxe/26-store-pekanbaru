@@ -40,8 +40,10 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginForm) => {
     try {
       setIsSubmitting(true)
-      await login(data)
-      router.push(callbackUrl)
+      const { redirectTo } = await login(data)
+      
+      // Use role-based redirect instead of callbackUrl for better UX
+      router.push(redirectTo)
     } catch (error) {
       console.error('Login failed:', error)
     } finally {
