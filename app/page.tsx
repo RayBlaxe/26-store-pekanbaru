@@ -127,7 +127,7 @@ export default function HomePage() {
                         disabled={product.stock === 0}
                       >
                         <ShoppingCart className="h-4 w-4 mr-2" />
-                        
+                        Tambah ke Keranjang
                       </Button>
                     </div>
                   </CardContent>

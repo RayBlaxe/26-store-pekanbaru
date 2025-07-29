@@ -108,42 +108,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
           dispatch({ type: 'AUTH_LOGOUT' })
         }
       } catch (error) {
-        dispatch({ type: 'AUTH_ERROR', payload: 'Failed to initialize authentication' })
-      }
-    }
-
-    initializeAuth()
-  }, [])
-
-  const login = async (credentials: LoginCredentials): Promise<{ redirectTo: string }> => {
-    try {
-      dispatch({ type: 'AUTH_START' })
-      const { user } = await authService.login(credentials)
-      dispatch({ type: 'AUTH_SUCCESS', payload: user })
-      
-      // Determine redirect path based on user role
-      const redirectTo = user.role === 'superadmin' ? '/superadmin' : user.role === 'admin' ? '/admin' : '/dashboard'
-      return { redirectTo }
-    } catch (error) {
-      dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Login failed' })
-      throw error
-    }
+        dispatch({ type: 'AUTH_ERROR', payload: 'Gagal menginisialisasi otentikasi' })
   }
+};
 
-  const register = async (credentials: RegisterCredentials): Promise<{ redirectTo: string }> => {
-    try {
-      dispatch({ type: 'AUTH_START' })
-      const { user } = await authService.register(credentials)
-      dispatch({ type: 'AUTH_SUCCESS', payload: user })
-      
-      // Determine redirect path based on user role (new registrations are usually customers)
-      const redirectTo = user.role === 'superadmin' ? '/superadmin' : user.role === 'admin' ? '/admin' : '/dashboard'
-      return { redirectTo }
-    } catch (error) {
-      dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Registration failed' })
-      throw error
-    }
+const login = async (credentials: LoginCredentials) => {
+  try {
+    dispatch({ type: 'LOGIN_REQUEST' })
+    const user = await authService.login(credentials)
+    dispatch({ type: 'LOGIN_SUCCESS', payload: user })
+    return user
+  } catch (error) {
+    dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Gagal masuk' })
+    throw error
   }
+};
+
+const register = async (credentials: RegisterCredentials) => {
+  try {
+    dispatch({ type: 'REGISTER_REQUEST' })
+    const user = await authService.register(credentials)
+    dispatch({ type: 'LOGIN_SUCCESS', payload: user })
+    return user
+  } catch (error) {
+    dispatch({ type: 'AUTH_ERROR', payload: error instanceof Error ? error.message : 'Gagal mendaftar' })
+    throw error
+  }
+};
 
   const logout = () => {
     authService.logout()

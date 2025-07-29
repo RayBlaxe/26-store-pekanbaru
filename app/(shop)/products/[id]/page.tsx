@@ -282,7 +282,7 @@ export default function ProductDetailPage() {
             <CardTitle>Shipping & Returns</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <p>✓ Free shipping on orders over IDR 500,000</p>
+            <p>✓ Pengiriman gratis untuk pesanan di atas Rp 500.000</p>
             <p>✓ 30-day return policy</p>
             <p>✓ 1-year warranty included</p>
             <p>✓ Secure payment processing</p>

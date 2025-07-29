@@ -17,10 +17,10 @@ import { Loader2 } from 'lucide-react'
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-  password_confirmation: z.string().min(8, 'Password confirmation is required'),
+  password: z.string().min(8, 'Kata sandi minimal 8 karakter'),
+  password_confirmation: z.string().min(8, 'Konfirmasi kata sandi harus diisi'),
 }).refine((data) => data.password === data.password_confirmation, {
-  message: "Passwords don't match",
+  message: "Kata sandi tidak cocok",
   path: ['password_confirmation'],
 })
 
@@ -157,12 +157,12 @@ export default function RegisterPage() {
               </Button>
             </form>
           </Form>
-          <div className="mt-4 text-center text-sm">
-            Already have an account?{' '}
-            <Link href="/login" className="text-blue-600 hover:text-blue-700 hover:underline">
-              Sign in
-            </Link>
-          </div>
+          <p className="text-sm text-muted-foreground">
+                  Sudah punya akun?{" "}
+                  <Link href="/login" className="font-medium text-primary hover:underline">
+                    Masuk
+                  </Link>
+                </p>
         </CardContent>
       </Card>
     </div>

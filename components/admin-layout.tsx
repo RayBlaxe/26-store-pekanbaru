@@ -26,11 +26,11 @@ interface AdminLayoutProps {
 }
 
 const navigation = [
-    { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { name: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { name: "Products", href: "/admin/products", icon: Package },
-  { name: "Users", href: "/admin/users", icon: Users },
-  { name: "Reports", href: "/admin/reports", icon: BarChart3 },
+    { name: "Dasbor", href: "/admin", icon: LayoutDashboard },
+  { name: "Pesanan", href: "/admin/orders", icon: ShoppingCart },
+  { name: "Produk", href: "/admin/products", icon: Package },
+  { name: "Pengguna", href: "/admin/users", icon: Users },
+  { name: "Laporan", href: "/admin/reports", icon: BarChart3 },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               className="w-full justify-start text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50"
             >
               <LogOut className="h-4 w-4 mr-3" />
-              {isLoggingOut ? 'Logging out...' : 'Logout'}
+              {isLoggingOut ? 'Keluar...' : 'Keluar'}
             </Button>
           </div>
         </div>

@@ -14,7 +14,7 @@ import { LoginCredentials } from '@/lib/auth-types'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(1, 'Password is required'),
+  password: z.string().min(1, 'Kata sandi harus diisi'),
 })
 
 type LoginFormData = z.infer<typeof loginSchema>

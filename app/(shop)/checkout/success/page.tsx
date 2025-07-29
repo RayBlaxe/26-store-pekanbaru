@@ -248,10 +248,7 @@ export default function CheckoutSuccessPage() {
           {/* Shipping Address */}
           <Card className="bg-slate-700 border-slate-600 mb-6">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Alamat Pengiriman
-              </CardTitle>
+              <CardTitle>Informasi Pengiriman</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-slate-600 p-4 rounded-lg border border-slate-500">

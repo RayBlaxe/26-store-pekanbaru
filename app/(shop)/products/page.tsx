@@ -69,8 +69,8 @@ export default function ProductsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">Products</h1>
           <p className="text-muted-foreground">
-            Discover our collection of quality sports equipment
-          </p>
+          Temukan koleksi peralatan olahraga berkualitas kami
+        </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">

@@ -207,15 +207,13 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow className="bg-gray-50">
-              <TableHead className="font-semibold text-gray-900">
-                {canSeeAllUsers ? 'Pengguna' : 'Pelanggan'}
-              </TableHead>
-              <TableHead className="font-semibold text-gray-900">Kontak</TableHead>
-              <TableHead className="font-semibold text-gray-900">Bergabung</TableHead>
-              <TableHead className="font-semibold text-gray-900">Login Terakhir</TableHead>
-              <TableHead className="font-semibold text-gray-900">Transaksi</TableHead>
-              <TableHead className="font-semibold text-gray-900">Total Belanja</TableHead>
-              <TableHead className="font-semibold text-gray-900">Aksi</TableHead>
+              <TableHead>Pengguna</TableHead>
+                <TableHead>Peran</TableHead>
+                <TableHead>Tanggal Bergabung</TableHead>
+                <TableHead>Login Terakhir</TableHead>
+                <TableHead>Total Pesanan</TableHead>
+                <TableHead>Total Pengeluaran</TableHead>
+                <TableHead>Tindakan</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

@@ -100,28 +100,28 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     <DropdownMenuItem asChild>
                       <Link href="/dashboard" className="w-full">
                         <User className="mr-2 h-4 w-4" />
-                        Dashboard
+                        Dasbor
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/profile" className="w-full">
                         <User className="mr-2 h-4 w-4" />
-                        Profile
+                        Profil
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogout}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      Logout
+                      Keluar
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
                 <div className="flex items-center space-x-2">
                   <Button asChild variant="ghost" size="sm" className="text-muted-foreground hover:bg-accent">
-                    <Link href="/login">Login</Link>
+                    <Link href="/login">Masuk</Link>
                   </Button>
                   <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
-                    <Link href="/register">Register</Link>
+                    <Link href="/register">Daftar</Link>
                   </Button>
                 </div>
               )}

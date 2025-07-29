@@ -347,10 +347,10 @@ export default function ProductsPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the product from your inventory.
-            </AlertDialogDescription>
+            <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tindakan ini tidak dapat dibatalkan. Ini akan menghapus produk secara permanen dari inventaris Anda.
+          </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>

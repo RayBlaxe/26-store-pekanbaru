@@ -52,7 +52,9 @@ export default function NewProductPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbLink href="/admin/products">Products</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+            <Link href="/admin/products">Produk</Link>
+          </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>

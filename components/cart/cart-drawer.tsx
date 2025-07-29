@@ -147,13 +147,13 @@ export function CartDrawer({ trigger }: CartDrawerProps) {
                     }}
                     className="flex-1"
                   >
-                    View Cart
+                    Lihat Keranjang
                   </Button>
                   <Button 
                     onClick={handleCheckout}
                     className="flex-1 bg-proceed hover:bg-proceed/90"
                   >
-                    Checkout
+                    Lanjut ke Pembayaran
                   </Button>
                 </div>
               </div>

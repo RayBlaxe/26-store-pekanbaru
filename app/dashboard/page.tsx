@@ -122,9 +122,7 @@ export default function DashboardPage() {
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Account Statistics</CardTitle>
-            <CardDescription>
-              Overview of your account activity
-            </CardDescription>
+            <CardDescription>Ringkasan aktivitas akun Anda</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

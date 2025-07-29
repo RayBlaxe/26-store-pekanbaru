@@ -342,7 +342,7 @@ export default function OrdersPage() {
               </Select>
             </div>
             <div>
-              <Label className="text-gray-300">Payment Status</Label>
+              <Label className="text-gray-300">Status Pembayaran</Label>
               <Select
                 value={filters.payment_status}
                 onValueChange={(value) => setFilters(prev => ({ ...prev, payment_status: value }))}

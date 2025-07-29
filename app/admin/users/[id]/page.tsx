@@ -382,12 +382,12 @@ export default function UserDetailPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold text-gray-900">No. Pesanan</TableHead>
-                    <TableHead className="font-semibold text-gray-900">Status</TableHead>
-                    <TableHead className="font-semibold text-gray-900">Total</TableHead>
-                    <TableHead className="font-semibold text-gray-900">Items</TableHead>
-                    <TableHead className="font-semibold text-gray-900">Tanggal Pesan</TableHead>
-                    <TableHead className="font-semibold text-gray-900">Tanggal Kirim</TableHead>
+                    <TableHead>Nomor Pesanan</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Item</TableHead>
+                    <TableHead>Tanggal Dibuat</TableHead>
+                    <TableHead>Tanggal Pengiriman</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

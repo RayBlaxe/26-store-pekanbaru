@@ -157,7 +157,7 @@ export default function EditProductPage() {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Edit {product.name}</BreadcrumbPage>
+                <BreadcrumbPage>Edit Produk</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>

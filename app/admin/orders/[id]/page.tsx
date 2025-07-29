@@ -165,11 +165,10 @@ export default function OrderDetailPage() {
   if (!order) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-white mb-4">Order Not Found</h2>
-        <Button onClick={() => router.push('/admin/orders')}>
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Orders
-        </Button>
+        <h2 className="text-2xl font-bold text-white mb-4">Pesanan Tidak Ditemukan</h2>
+          <Button onClick={() => router.push('/admin/orders')}>
+            Kembali ke Pesanan
+          </Button>
       </div>
     )
   }
@@ -302,9 +301,9 @@ export default function OrderDetailPage() {
           <Card className="bg-slate-700 border-slate-600">
             <CardHeader>
               <CardTitle className="text-white flex items-center">
-                <User className="h-5 w-5 mr-2" />
-                Customer
-              </CardTitle>
+              <User className="h-5 w-5 mr-2" />
+              Pelanggan
+            </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center space-x-2">
@@ -387,7 +386,7 @@ export default function OrderDetailPage() {
                 </Select>
               </div>
               <div>
-                <Label className="text-gray-300">Notes (Optional)</Label>
+                <Label className="text-gray-300">Catatan (Opsional)</Label>
                 <Textarea
                   placeholder="Add notes about the status change..."
                   value={statusNotes}

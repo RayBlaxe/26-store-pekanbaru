@@ -55,10 +55,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-gray-900">Sign In</CardTitle>
-          <CardDescription className="text-center text-gray-600">
-            Enter your email and password to access your account
-          </CardDescription>
+          <CardTitle>Masuk</CardTitle>
+          <CardDescription>Masukkan email dan kata sandi Anda untuk mengakses akun Anda</CardDescription>
         </CardHeader>
         <CardContent className="p-8">
           <Form {...form}>

@@ -182,13 +182,9 @@ export default function ReportsPage() {
             <Download className="h-4 w-4 mr-2" />
             Export Excel
           </Button>
-          <Button
-            variant="outline"
-            onClick={() => handleExport('pdf')}
-            className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
-          >
-            <FileText className="h-4 w-4 mr-2" />
-            Export PDF
+          <Button variant="outline" onClick={() => handleExport('pdf')} className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white">
+            <FileText className="mr-2 h-4 w-4" />
+            Ekspor PDF
           </Button>
         </div>
       </div>
@@ -349,9 +345,9 @@ export default function ReportsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              Recent Orders
-            </CardTitle>
+            <ShoppingCart className="h-5 w-5 mr-2" />
+            Pesanan Terbaru
+          </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -383,9 +379,9 @@ export default function ReportsPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center">
-            <TrendingUp className="h-5 w-5 mr-2" />
-            Monthly Revenue Trend
-          </CardTitle>
+                <TrendingUp className="h-5 w-5 mr-2" />
+                Tren Pendapatan Bulanan
+              </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
@@ -394,7 +390,7 @@ export default function ReportsPage() {
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <p className="text-muted-foreground text-sm font-medium">{month.month}</p>
                   <p className="font-bold text-lg">{formatPrice(month.revenue)}</p>
-                  <p className="text-muted-foreground text-xs">{month.orders} orders</p>
+                  <p className="text-muted-foreground text-xs">{month.orders} pesanan</p>
                 </div>
               </div>
             ))}
