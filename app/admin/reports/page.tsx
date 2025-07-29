@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { CalendarDays, TrendingUp, DollarSign, ShoppingCart, Package, Users, Download, FileText } from "lucide-react"
 import { toast } from "@/hooks/use-toast"
 import { getSalesReport } from "@/services/admin.service"
+import { exportToPDF, exportToExcel } from "@/lib/export-utils"
 
 interface SalesMetrics {
   totalRevenue: number
@@ -74,18 +75,44 @@ export default function ReportsPage() {
     fetchReports()
   }, [dateRange, startDate, endDate])
 
-  const handleExport = (type: 'pdf' | 'excel') => {
-    toast({
-      title: "Export Started",
-      description: `Generating ${type.toUpperCase()} report...`,
-    })
-    
-    setTimeout(() => {
+  const handleExport = async (type: 'pdf' | 'excel') => {
+    if (!metrics) {
+      toast({
+        title: "Error",
+        description: "No data available to export.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    try {
+      toast({
+        title: "Export Started",
+        description: `Generating ${type.toUpperCase()} report...`,
+      })
+
+      const periodText = dateRange === "custom" && startDate && endDate
+        ? `${startDate} to ${endDate}`
+        : dateRange.replace(/(\d+)(\w+)/, '$1 $2').replace(/days?|months?|year/, match => match + (match.endsWith('s') ? '' : 's'))
+
+      if (type === 'pdf') {
+        exportToPDF(metrics, periodText)
+      } else {
+        exportToExcel(metrics, periodText)
+      }
+
       toast({
         title: "Export Complete",
         description: `Report has been downloaded as ${type.toUpperCase()}`,
       })
-    }, 2000)
+    } catch (error) {
+      console.error('Export error:', error)
+      toast({
+        title: "Export Failed",
+        description: "Failed to generate report. Please try again.",
+        variant: "destructive",
+      })
+    }
   }
 
   const formatPrice = (amount: number) => {

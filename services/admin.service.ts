@@ -171,7 +171,7 @@ export const getUsers = async (params?: {
 }) => {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
-  if (params?.limit) queryParams.append('limit', params.limit.toString())
+  if (params?.limit) queryParams.append('per_page', params.limit.toString())
   if (params?.search) queryParams.append('search', params.search)
   if (params?.role) queryParams.append('role', params.role)
   if (params?.status) queryParams.append('status', params.status)
@@ -201,7 +201,7 @@ export const getUserOrderHistory = async (id: string, params?: {
 }) => {
   const queryParams = new URLSearchParams()
   if (params?.page) queryParams.append('page', params.page.toString())
-  if (params?.limit) queryParams.append('limit', params.limit.toString())
+  if (params?.limit) queryParams.append('per_page', params.limit.toString())
 
   const response = await api.get(`/admin/users/${id}/orders?${queryParams}`)
   return response.data
