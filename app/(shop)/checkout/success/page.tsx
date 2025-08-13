@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import CustomerLayout from "@/components/customer-layout"
 import { Button } from "@/components/ui/button"
@@ -24,7 +24,7 @@ import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 import Image from "next/image"
 
-export default function CheckoutSuccessPage() {
+function CheckoutSuccessContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const orderId = searchParams.get('order_id')
@@ -114,8 +114,6 @@ export default function CheckoutSuccessPage() {
         </div>
       </CustomerLayout>
     )
-  }
-
   // Error state
   if (error || !order) {
     return (
@@ -328,3 +326,11 @@ export default function CheckoutSuccessPage() {
     </CustomerLayout>
   )
 }
+export default function CheckoutSuccessPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <CheckoutSuccessContent />
+    </Suspense>
+  )
+}
+
