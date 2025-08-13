@@ -27,7 +27,7 @@ export default function LoginPage() {
   const { login, isLoading, error } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/dashboard'
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/'
 
   const form = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),

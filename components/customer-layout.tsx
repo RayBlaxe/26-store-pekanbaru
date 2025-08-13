@@ -97,12 +97,7 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard" className="w-full">
-                        <User className="mr-2 h-4 w-4" />
-                        Dasbor
-                      </Link>
-                    </DropdownMenuItem>
+                    
                     <DropdownMenuItem asChild>
                       <Link href="/profile" className="w-full">
                         <User className="mr-2 h-4 w-4" />

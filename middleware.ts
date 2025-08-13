@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 // Define protected routes
-const protectedRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
+const protectedRoutes = ['/profile', '/orders', '/checkout', '/cart']
 const adminRoutes = ['/admin']
 const superadminRoutes = ['/superadmin']
-const customerRoutes = ['/dashboard', '/profile', '/orders', '/checkout', '/cart']
+const customerRoutes = ['/profile', '/orders', '/checkout', '/cart']
 const authRoutes = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
@@ -65,7 +65,7 @@ export function middleware(request: NextRequest) {
 
   // If user is authenticated and trying to access auth routes
   if (isAuthRoute && token) {
-    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/dashboard'
+    const callbackUrl = request.nextUrl.searchParams.get('callbackUrl') || '/'
     return NextResponse.redirect(new URL(callbackUrl, request.url))
   }
 

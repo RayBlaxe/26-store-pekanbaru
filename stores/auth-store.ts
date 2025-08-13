@@ -36,7 +36,7 @@ export const useAuthStore = create<AuthStore>()((
           toast.success('Login successful!')
           // Return role-based redirect target for immediate navigation
           const role = response.user.role
-          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/dashboard'
+          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/'
           return { redirectTo }
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Login failed'
@@ -66,7 +66,7 @@ export const useAuthStore = create<AuthStore>()((
           toast.success('Registration successful!')
           // Return role-based redirect target for immediate navigation
           const role = response.user.role
-          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/dashboard'
+          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/'
           return { redirectTo }
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Registration failed'

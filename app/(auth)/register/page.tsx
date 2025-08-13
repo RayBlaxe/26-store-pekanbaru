@@ -32,7 +32,7 @@ export default function RegisterPage() {
   const { register, isLoading, error } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
   
-  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/dashboard'
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('redirect') || '/'
 
   const form = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
