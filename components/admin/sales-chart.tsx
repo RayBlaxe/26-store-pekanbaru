@@ -16,6 +16,7 @@ import {
 import { Line } from "react-chartjs-2"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { formatPriceCompact } from "@/lib/utils"
 
 ChartJS.register(
   CategoryScale,
@@ -51,19 +52,32 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
     }),
     datasets: [
       {
-        label: "Sales (Rp)",
+        label: "Penjualan (Rp)",
         data: data.map((item) => item.sales),
-        borderColor: "hsl(var(--primary))",
-        backgroundColor: "hsl(var(--primary) / 0.1)",
+        borderColor: "#2563eb", // blue-600 for strong contrast
+        backgroundColor: "rgba(37, 99, 235, 0.2)",
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+        pointHitRadius: 20,
+        pointBorderWidth: 1,
         tension: 0.3,
+        fill: true,
         yAxisID: 'y',
       },
       {
-        label: "Orders",
+        label: "Pesanan",
         data: data.map((item) => item.orders_count),
-        borderColor: "hsl(var(--secondary))",
-        backgroundColor: "hsl(var(--secondary) / 0.1)",
+        borderColor: "#f59e0b", // amber-500 for contrast against blue
+        backgroundColor: "rgba(245, 158, 11, 0.2)",
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+        pointHitRadius: 20,
+        pointBorderWidth: 1,
+        borderDash: [6, 3],
         tension: 0.3,
+        fill: true,
         yAxisID: 'y1',
       },
     ],
@@ -82,9 +96,9 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
         callbacks: {
           label: function(context) {
             if (context.datasetIndex === 0) {
-              return `Sales: Rp ${context.parsed.y.toLocaleString('id-ID')}`
+              return `Penjualan: ${formatPriceCompact(context.parsed.y as number)}`
             }
-            return `Orders: ${context.parsed.y}`
+            return `Pesanan: ${context.parsed.y}`
           }
         }
       },
@@ -94,7 +108,7 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
         display: true,
         title: {
           display: true,
-          text: 'Date'
+          text: 'Tanggal'
         }
       },
       y: {
@@ -103,11 +117,11 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
         position: 'left',
         title: {
           display: true,
-          text: 'Sales (Rp)'
+          text: 'Penjualan (Rp)'
         },
         ticks: {
           callback: function(value) {
-            return 'Rp ' + Number(value).toLocaleString('id-ID')
+            return formatPriceCompact(Number(value))
           }
         }
       },
@@ -117,7 +131,7 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
         position: 'right',
         title: {
           display: true,
-          text: 'Orders'
+          text: 'Pesanan'
         },
         grid: {
           drawOnChartArea: false,
@@ -133,15 +147,15 @@ export function SalesChart({ data, period, onPeriodChange, loading }: SalesChart
   return (
     <Card className="col-span-4">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Sales Overview</CardTitle>
+        <CardTitle>Ringkasan Penjualan</CardTitle>
         <Select value={period} onValueChange={onPeriodChange}>
           <SelectTrigger className="w-[120px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="7d">Last 7 days</SelectItem>
-            <SelectItem value="30d">Last 30 days</SelectItem>
-            <SelectItem value="90d">Last 90 days</SelectItem>
+            <SelectItem value="7d">7 hari terakhir</SelectItem>
+            <SelectItem value="30d">30 hari terakhir</SelectItem>
+            <SelectItem value="90d">90 hari terakhir</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>

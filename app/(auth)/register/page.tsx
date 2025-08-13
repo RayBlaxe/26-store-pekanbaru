@@ -57,11 +57,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center text-gray-900">Create Account</CardTitle>
-          <CardDescription className="text-center text-gray-600">
+          <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
+          <CardDescription className="text-center">
             Enter your details to create your account
           </CardDescription>
         </CardHeader>
@@ -143,7 +143,7 @@ export default function RegisterPage() {
               )}
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700" 
+                className="w-full" 
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? (

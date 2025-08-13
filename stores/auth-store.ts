@@ -5,8 +5,8 @@ import { User, AuthState, LoginRequest, RegisterRequest } from '@/lib/auth-types
 import { toast } from 'sonner'
 
 interface AuthStore extends AuthState {
-  login: (credentials: LoginRequest) => Promise<void>
-  register: (credentials: RegisterRequest) => Promise<void>
+  login: (credentials: LoginRequest) => Promise<{ redirectTo: string }>
+  register: (credentials: RegisterRequest) => Promise<{ redirectTo: string }>
   logout: () => Promise<void>
   fetchUser: () => Promise<void>
   clearError: () => void
@@ -34,6 +34,10 @@ export const useAuthStore = create<AuthStore>()((
             error: null,
           })
           toast.success('Login successful!')
+          // Return role-based redirect target for immediate navigation
+          const role = response.user.role
+          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/dashboard'
+          return { redirectTo }
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Login failed'
           set({ 
@@ -60,6 +64,10 @@ export const useAuthStore = create<AuthStore>()((
             error: null,
           })
           toast.success('Registration successful!')
+          // Return role-based redirect target for immediate navigation
+          const role = response.user.role
+          const redirectTo = role === 'superadmin' ? '/superadmin' : role === 'admin' ? '/admin' : '/dashboard'
+          return { redirectTo }
         } catch (error: any) {
           const errorMessage = error.response?.data?.message || error.message || 'Registration failed'
           set({ 

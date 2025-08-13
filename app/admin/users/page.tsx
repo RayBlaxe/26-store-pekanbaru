@@ -9,6 +9,7 @@ import { Search, Eye, User, Mail, Phone, Calendar } from "lucide-react"
 import { getUsers } from "@/services/admin.service"
 import { useAuth } from "@/hooks/use-auth"
 import { useToast } from "@/hooks/use-toast"
+import { formatPriceCompact } from "@/lib/utils"
 
 // User interface definition
 
@@ -93,12 +94,7 @@ export default function UsersPage() {
   const filteredUsers = users
 
   const formatCurrency = (amount?: number) => {
-    if (!amount) return "Rp 0"
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0
-    }).format(amount)
+    return formatPriceCompact(amount || 0)
   }
 
   const formatDate = (dateString: string) => {

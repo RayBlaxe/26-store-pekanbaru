@@ -42,18 +42,18 @@ interface Order {
 }
 
 const statusConfig = {
-  pending: { label: "Pending", color: "bg-yellow-500", icon: Clock },
-  processing: { label: "Processing", color: "bg-blue-500", icon: Package },
-  shipped: { label: "Shipped", color: "bg-purple-500", icon: Truck },
-  delivered: { label: "Delivered", color: "bg-green-500", icon: CheckCircle },
-  cancelled: { label: "Cancelled", color: "bg-red-500", icon: XCircle },
+  pending: { label: "Menunggu", color: "bg-yellow-500", icon: Clock },
+  processing: { label: "Diproses", color: "bg-blue-500", icon: Package },
+  shipped: { label: "Dikirim", color: "bg-purple-500", icon: Truck },
+  delivered: { label: "Terkirim", color: "bg-green-500", icon: CheckCircle },
+  cancelled: { label: "Dibatalkan", color: "bg-red-500", icon: XCircle },
 }
 
 const paymentStatusConfig = {
-  pending: { label: "Pending", color: "bg-yellow-500" },
-  paid: { label: "Paid", color: "bg-green-500" },
-  failed: { label: "Failed", color: "bg-red-500" },
-  refunded: { label: "Refunded", color: "bg-gray-500" },
+  pending: { label: "Menunggu", color: "bg-yellow-500" },
+  paid: { label: "Dibayar", color: "bg-green-500" },
+  failed: { label: "Gagal", color: "bg-red-500" },
+  refunded: { label: "Dikembalikan", color: "bg-gray-500" },
 }
 
 export default function OrdersPage() {
@@ -91,7 +91,7 @@ export default function OrdersPage() {
       console.error('Error fetching orders:', error)
       toast({
         title: "Error",
-        description: "Failed to fetch orders. Please check if you're logged in as admin.",
+        description: "Gagal mengambil pesanan. Pastikan Anda login sebagai admin.",
         variant: "destructive",
       })
       setOrders([])
@@ -115,14 +115,14 @@ export default function OrdersPage() {
           : order
       ))
       toast({
-        title: "Order updated",
-        description: `Order status changed to ${newStatus}`,
+        title: "Pesanan diperbarui",
+        description: `Status pesanan diubah menjadi ${statusConfig[newStatus as keyof typeof statusConfig]?.label || newStatus}`,
       })
     } catch (error) {
       console.error('Error updating order status:', error)
       toast({
         title: "Error",
-        description: "Failed to update order status",
+        description: "Gagal memperbarui status pesanan",
         variant: "destructive",
       })
     }
@@ -146,14 +146,14 @@ export default function OrdersPage() {
       document.body.removeChild(a)
       
       toast({
-        title: "Export successful",
-        description: `Orders exported as ${format.toUpperCase()}`,
+        title: "Ekspor berhasil",
+        description: `Pesanan diekspor sebagai ${format.toUpperCase()}`,
       })
     } catch (error) {
       console.error('Error exporting orders:', error)
       toast({
         title: "Error",
-        description: "Failed to export orders",
+        description: "Gagal mengekspor pesanan",
         variant: "destructive",
       })
     }
@@ -162,7 +162,7 @@ export default function OrdersPage() {
   const columns: ColumnDef<Order>[] = [
     {
       accessorKey: "order_number",
-      header: "Order Number",
+      header: "Nomor Pesanan",
       cell: ({ row }) => (
         <div className="font-medium text-blue-400">
           #{row.getValue("order_number")}
@@ -171,7 +171,7 @@ export default function OrdersPage() {
     },
     {
       accessorKey: "customer",
-      header: "Customer",
+      header: "Pelanggan",
       cell: ({ row }) => {
         const customer = row.getValue("customer") as Order['customer']
         return (
@@ -184,7 +184,7 @@ export default function OrdersPage() {
     },
     {
       accessorKey: "status",
-      header: "Order Status",
+      header: "Status Pesanan",
       cell: ({ row }) => {
         const status = row.getValue("status") as Order['status']
         const config = statusConfig[status]
@@ -199,7 +199,7 @@ export default function OrdersPage() {
     },
     {
       accessorKey: "payment_status",
-      header: "Payment",
+      header: "Pembayaran",
       cell: ({ row }) => {
         const status = row.getValue("payment_status") as Order['payment_status']
         const config = paymentStatusConfig[status]
@@ -221,16 +221,16 @@ export default function OrdersPage() {
     },
     {
       accessorKey: "items_count",
-      header: "Items",
+      header: "Item",
       cell: ({ row }) => (
         <div className="text-center">
-          {row.getValue("items_count")} items
+          {row.getValue("items_count")} item
         </div>
       ),
     },
     {
       accessorKey: "created_at",
-      header: "Date",
+      header: "Tanggal",
       cell: ({ row }) => (
         <div className="text-sm">
           {formatDate(row.getValue("created_at"))}
@@ -239,7 +239,7 @@ export default function OrdersPage() {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: "Aksi",
       cell: ({ row }) => {
         const order = row.original
         return (
@@ -260,11 +260,11 @@ export default function OrdersPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="processing">Processing</SelectItem>
-                <SelectItem value="shipped">Shipped</SelectItem>
-                <SelectItem value="delivered">Delivered</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="pending">Menunggu</SelectItem>
+                <SelectItem value="processing">Diproses</SelectItem>
+                <SelectItem value="shipped">Dikirim</SelectItem>
+                <SelectItem value="delivered">Terkirim</SelectItem>
+                <SelectItem value="cancelled">Dibatalkan</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -277,8 +277,8 @@ export default function OrdersPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white">Order Management</h1>
-          <p className="text-gray-400">Manage customer orders and shipments</p>
+          <h1 className="text-3xl font-bold text-white">Manajemen Pesanan</h1>
+          <p className="text-gray-400">Kelola pesanan dan pengiriman pelanggan</p>
         </div>
         <div className="flex space-x-2">
           <Button
@@ -287,7 +287,7 @@ export default function OrdersPage() {
             className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white"
           >
             <Download className="h-4 w-4 mr-2" />
-            Export CSV
+            Ekspor CSV
           </Button>
           <Button
             variant="outline"
@@ -295,27 +295,27 @@ export default function OrdersPage() {
             className="border-green-500 text-green-400 hover:bg-green-500 hover:text-white"
           >
             <Download className="h-4 w-4 mr-2" />
-            Export Excel
+            Ekspor Excel
           </Button>
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filter */}
       <Card className="bg-slate-700 border-slate-600">
         <CardHeader>
           <CardTitle className="text-white flex items-center">
             <Filter className="h-5 w-5 mr-2" />
-            Filters
+            Filter
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div>
-              <Label className="text-gray-300">Search</Label>
+              <Label className="text-gray-300">Pencarian</Label>
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Order number, customer..."
+                  placeholder="Nomor pesanan, pelanggan..."
                   value={filters.search}
                   onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
                   className="pl-10 bg-slate-600 border-slate-500 text-white"
@@ -323,7 +323,7 @@ export default function OrdersPage() {
               </div>
             </div>
             <div>
-              <Label className="text-gray-300">Order Status</Label>
+              <Label className="text-gray-300">Status Pesanan</Label>
               <Select
                 value={filters.status}
                 onValueChange={(value) => setFilters(prev => ({ ...prev, status: value }))}
@@ -332,12 +332,12 @@ export default function OrdersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="processing">Processing</SelectItem>
-                  <SelectItem value="shipped">Shipped</SelectItem>
-                  <SelectItem value="delivered">Delivered</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="pending">Menunggu</SelectItem>
+                  <SelectItem value="processing">Diproses</SelectItem>
+                  <SelectItem value="shipped">Dikirim</SelectItem>
+                  <SelectItem value="delivered">Terkirim</SelectItem>
+                  <SelectItem value="cancelled">Dibatalkan</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -351,16 +351,16 @@ export default function OrdersPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Payment</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="paid">Paid</SelectItem>
-                  <SelectItem value="failed">Failed</SelectItem>
-                  <SelectItem value="refunded">Refunded</SelectItem>
+                  <SelectItem value="all">Semua Pembayaran</SelectItem>
+                  <SelectItem value="pending">Menunggu</SelectItem>
+                  <SelectItem value="paid">Dibayar</SelectItem>
+                  <SelectItem value="failed">Gagal</SelectItem>
+                  <SelectItem value="refunded">Dikembalikan</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div>
-              <Label className="text-gray-300">Start Date</Label>
+              <Label className="text-gray-300">Tanggal Mulai</Label>
               <Input
                 type="date"
                 value={filters.startDate}
@@ -369,7 +369,7 @@ export default function OrdersPage() {
               />
             </div>
             <div>
-              <Label className="text-gray-300">End Date</Label>
+              <Label className="text-gray-300">Tanggal Selesai</Label>
               <Input
                 type="date"
                 value={filters.endDate}
@@ -394,14 +394,14 @@ export default function OrdersPage() {
                 columns={columns}
                 data={orders}
                 searchKey="order_number"
-                searchPlaceholder="Search orders..."
+                searchPlaceholder="Cari pesanan..."
               />
               
               {/* Custom Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t border-slate-600">
                   <div className="text-sm text-gray-400">
-                    Page {currentPage} of {totalPages}
+                    Halaman {currentPage} dari {totalPages}
                   </div>
                   <div className="flex space-x-2">
                     <Button
@@ -411,7 +411,7 @@ export default function OrdersPage() {
                       disabled={currentPage <= 1}
                       className="border-slate-500 text-slate-300 hover:bg-slate-600"
                     >
-                      Previous
+                      Sebelumnya
                     </Button>
                     <Button
                       variant="outline"
@@ -420,7 +420,7 @@ export default function OrdersPage() {
                       disabled={currentPage >= totalPages}
                       className="border-slate-500 text-slate-300 hover:bg-slate-600"
                     >
-                      Next
+                      Berikutnya
                     </Button>
                   </div>
                 </div>

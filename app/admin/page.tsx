@@ -11,6 +11,7 @@ import { SalesChart } from "@/components/admin/sales-chart"
 import { RecentOrders } from "@/components/admin/recent-orders"
 import { TopProducts } from "@/components/admin/top-products"
 import { getDashboardStats, getSalesChart, getRecentOrders, getTopProducts, getLowStockProducts } from "@/services/admin.service"
+import { formatPriceCompact } from "@/lib/utils"
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -197,8 +198,8 @@ export default function AdminDashboard() {
       {stats && (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <StatCard
-            title="Total Revenue"
-            value={`Rp ${stats.totalRevenue?.toLocaleString('id-ID') || '0'}`}
+            title="Total Pendapatan"
+            value={formatPriceCompact(stats.totalRevenue || 0)}
             change={{
               value: stats.revenueChange || 0,
               isPositive: (stats.revenueChange || 0) > 0
@@ -206,7 +207,7 @@ export default function AdminDashboard() {
             icon={DollarSign}
           />
           <StatCard
-            title="Total Orders"
+            title="Total Pesanan"
             value={stats.totalOrders?.toLocaleString('id-ID') || '0'}
             change={{
               value: stats.ordersChange || 0,
@@ -215,7 +216,7 @@ export default function AdminDashboard() {
             icon={ShoppingCart}
           />
           <StatCard
-            title="Total Customers"
+            title="Total Pelanggan"
             value={stats.totalCustomers?.toLocaleString('id-ID') || '0'}
             change={{
               value: stats.customersChange || 0,
@@ -224,7 +225,7 @@ export default function AdminDashboard() {
             icon={Users}
           />
           <StatCard
-            title="Total Products"
+            title="Total Produk"
             value={stats.totalProducts?.toLocaleString('id-ID') || '0'}
             change={{
               value: stats.productsChange || 0,
@@ -265,7 +266,7 @@ export default function AdminDashboard() {
           <CardContent>
             <div className="space-y-4">
               {lowStockProducts.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">All products are well stocked</p>
+                <p className="text-muted-foreground text-center py-4">Semua produk stoknya aman</p>
               ) : (
                 lowStockProducts.map((product) => (
                   <div key={product.id} className="flex items-center justify-between">
@@ -288,24 +289,24 @@ export default function AdminDashboard() {
         </Card>
       </div>
 
-      {/* Quick Actions */}
+      {/* Tindakan Cepat */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>Tindakan Cepat</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             <Button asChild>
-              <Link href="/admin/products/new">Add New Product</Link>
+              <Link href="/admin/products/new">Tambah Produk Baru</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/admin/orders">View All Orders</Link>
+              <Link href="/admin/orders">Lihat Semua Pesanan</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/admin/users">Manage Users</Link>
+              <Link href="/admin/users">Kelola Pengguna</Link>
             </Button>
             <Button variant="outline" asChild>
-              <Link href="/admin/reports">View Reports</Link>
+              <Link href="/admin/reports">Lihat Laporan</Link>
             </Button>
           </div>
         </CardContent>

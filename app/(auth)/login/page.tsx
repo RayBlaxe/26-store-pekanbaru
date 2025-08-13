@@ -52,7 +52,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-md">
         <CardHeader className="space-y-1">
           <CardTitle>Masuk</CardTitle>
@@ -102,7 +102,7 @@ export default function LoginPage() {
               )}
               <Button 
                 type="submit" 
-                className="w-full bg-blue-600 hover:bg-blue-700" 
+                className="w-full" 
                 disabled={isSubmitting || isLoading}
               >
                 {isSubmitting ? (
@@ -118,7 +118,7 @@ export default function LoginPage() {
           </Form>
           <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}
-            <Link href="/register" className="text-blue-600 hover:text-blue-700 hover:underline">
+            <Link href="/register" className="text-primary hover:underline">
               Sign up
             </Link>
           </div>

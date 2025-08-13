@@ -25,6 +25,16 @@ export function formatDate(date: string | Date): string {
   }).format(dateObj)
 }
 
+// Compact Rupiah formatting: Rp120,000 (no space, commas, no decimals)
+export function formatPriceCompact(price: number): string {
+  const value = Math.round(Number(price) || 0)
+  const formatted = value.toLocaleString('en-US', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })
+  return `Rp${formatted}`
+}
+
 export function formatDateShort(date: string | Date): string {
   const dateObj = typeof date === 'string' ? new Date(date) : date
   return new Intl.DateTimeFormat('id-ID', {

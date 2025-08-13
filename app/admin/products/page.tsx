@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DataTable } from "@/components/admin/data-table"
 import { ColumnDef } from "@tanstack/react-table"
 import { Plus, Edit, Trash2, Eye, Package, AlertTriangle, Filter } from "lucide-react"
+import { formatPriceCompact } from "@/lib/utils"
 import { getProducts, deleteProduct, bulkDeleteProducts, getProductStatistics } from "@/services/admin.service"
 import { toast } from "@/hooks/use-toast"
 
@@ -124,7 +125,7 @@ export default function ProductsPage() {
   const columns: ColumnDef<Product>[] = [
     {
       accessorKey: "images",
-      header: "Image",
+      header: "Gambar",
       cell: ({ row }) => {
         const product = row.original
         const images = Array.isArray(product.images) ? product.images : []
@@ -143,7 +144,7 @@ export default function ProductsPage() {
     },
     {
       accessorKey: "name",
-      header: "Product Name",
+      header: "Nama Produk",
       cell: ({ row }) => {
         const name = row.getValue("name") as string
         const sku = row.original.sku
@@ -157,7 +158,7 @@ export default function ProductsPage() {
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: "Kategori",
       cell: ({ row }) => {
         const category = row.getValue("category") as Product["category"]
         const categoryName = typeof category === 'string' ? category : category?.name || 'No Category'
@@ -166,19 +167,19 @@ export default function ProductsPage() {
     },
     {
       accessorKey: "brand",
-      header: "Brand",
+      header: "Merek",
     },
     {
       accessorKey: "price",
-      header: "Price",
+      header: "Harga",
       cell: ({ row }) => {
         const price = row.getValue("price") as number
-        return <div className="font-medium">Rp {price.toLocaleString('id-ID')}</div>
+        return <div className="font-medium">{formatPriceCompact(price)}</div>
       },
     },
     {
       accessorKey: "stock",
-      header: "Stock",
+      header: "Stok",
       cell: ({ row }) => {
         const stock = row.getValue("stock") as number
         return (
@@ -197,14 +198,14 @@ export default function ProductsPage() {
         const isActive = product.isActive ?? product.is_active ?? false
         return (
           <Badge variant={isActive ? "default" : "secondary"}>
-            {isActive ? "Active" : "Inactive"}
+            {isActive ? "Aktif" : "Nonaktif"}
           </Badge>
         )
       },
     },
     {
       id: "actions",
-      header: "Actions",
+      header: "Aksi",
       cell: ({ row }) => {
         const product = row.original
         return (
@@ -240,13 +241,13 @@ export default function ProductsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Products</h1>
-          <p className="text-muted-foreground">Manage your product inventory</p>
+          <h1 className="text-3xl font-bold">Produk</h1>
+          <p className="text-muted-foreground">Kelola persediaan produk Anda</p>
         </div>
         <Button asChild>
           <Link href="/admin/products/new">
             <Plus className="h-4 w-4 mr-2" />
-            Add Product
+            Tambah Produk
           </Link>
         </Button>
       </div>
@@ -290,14 +291,14 @@ export default function ProductsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Filter className="h-5 w-5" />
-            Filters
+            Filter
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex gap-4">
             <Select value={filters.category} onValueChange={(value) => setFilters(prev => ({ ...prev, category: value }))}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="All Categories" />
+                <SelectValue placeholder="Semua Kategori" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
@@ -310,12 +311,12 @@ export default function ProductsPage() {
             
             <Select value={filters.inStock} onValueChange={(value) => setFilters(prev => ({ ...prev, inStock: value }))}>
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Stock Status" />
+                <SelectValue placeholder="Status Stok" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Products</SelectItem>
-                <SelectItem value="true">In Stock</SelectItem>
-                <SelectItem value="false">Out of Stock</SelectItem>
+                <SelectItem value="all">Semua Produk</SelectItem>
+                <SelectItem value="true">Tersedia</SelectItem>
+                <SelectItem value="false">Habis</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -325,7 +326,7 @@ export default function ProductsPage() {
       {/* Products Table */}
       <Card>
         <CardHeader>
-          <CardTitle>All Products</CardTitle>
+          <CardTitle>Semua Produk</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -337,7 +338,7 @@ export default function ProductsPage() {
               columns={columns} 
               data={products}
               searchKey="name"
-              searchPlaceholder="Search products..."
+              searchPlaceholder="Cari produk..."
             />
           )}
         </CardContent>

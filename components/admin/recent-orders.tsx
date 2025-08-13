@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { formatPriceCompact } from "@/lib/utils"
 
 interface Order {
   id: string
@@ -35,7 +36,7 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
     return (
       <Card className="col-span-3">
         <CardHeader>
-          <CardTitle>Recent Orders</CardTitle>
+          <CardTitle>Pesanan Terbaru</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -58,10 +59,10 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
   return (
     <Card className="col-span-3">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Orders</CardTitle>
+        <CardTitle>Pesanan Terbaru</CardTitle>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/admin/orders">
-            View all
+            Lihat semua
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
@@ -69,7 +70,7 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
       <CardContent>
         <div className="space-y-4">
           {orders.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No recent orders</p>
+            <p className="text-muted-foreground text-center py-4">Tidak ada pesanan terbaru</p>
           ) : (
             orders.map((order) => (
               <div key={order.id} className="flex items-center justify-between space-x-4">
@@ -95,7 +96,7 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
                 </div>
                 <div className="text-right">
                   <p className="font-medium">
-                    Rp {order.total_amount.toLocaleString('id-ID')}
+                    {formatPriceCompact(order.total_amount)}
                   </p>
                   <Badge 
                     className={`${
@@ -104,7 +105,14 @@ export function RecentOrders({ orders, loading }: RecentOrdersProps) {
                     } capitalize`}
                     variant="secondary"
                   >
-                    {order.status}
+                    {{
+                      pending: 'Menunggu',
+                      confirmed: 'Dikonfirmasi',
+                      processing: 'Diproses',
+                      shipped: 'Dikirim',
+                      delivered: 'Terkirim',
+                      cancelled: 'Dibatalkan'
+                    }[order.status as keyof typeof statusColors] || order.status}
                   </Badge>
                 </div>
               </div>

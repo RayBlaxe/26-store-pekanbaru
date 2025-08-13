@@ -15,13 +15,13 @@ import { ImageUpload } from "@/components/admin/image-upload"
 import { getCategories } from "@/services/admin.service"
 
 const productSchema = z.object({
-  name: z.string().min(1, "Product name is required"),
+  name: z.string().min(1, "Nama produk wajib diisi"),
   description: z.string().optional(),
-  price: z.number().min(0, "Price must be positive"),
+  price: z.number().min(0, "Harga harus bernilai positif"),
   comparePrice: z.number().optional(),
   sku: z.string().optional(),
-  stock: z.number().min(0, "Stock must be positive").int(),
-  category: z.string().min(1, "Category is required"),
+  stock: z.number().min(0, "Stok harus bernilai positif").int(),
+  category: z.string().min(1, "Kategori wajib dipilih"),
   brand: z.string().optional(),
   weight: z.number().optional(),
   dimensions: z.object({
@@ -32,7 +32,7 @@ const productSchema = z.object({
   isActive: z.boolean(),
   isFeatured: z.boolean(),
   tags: z.string().optional(),
-  images: z.array(z.string()).min(1, "At least one image is required"),
+  images: z.array(z.string()).min(1, "Minimal satu gambar diperlukan"),
 })
 
 type ProductFormData = z.infer<typeof productSchema>
@@ -112,10 +112,10 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
-          {/* Basic Information */}
+          {/* Informasi Dasar */}
           <Card>
             <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+              <CardTitle>Informasi Dasar</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <FormField
@@ -123,9 +123,9 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Product Name</FormLabel>
+                    <FormLabel>Nama Produk</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter product name" {...field} disabled={isLoading} />
+                      <Input placeholder="Masukkan nama produk" {...field} disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -137,10 +137,10 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>Deskripsi</FormLabel>
                     <FormControl>
                       <Textarea 
-                        placeholder="Enter product description" 
+                        placeholder="Masukkan deskripsi produk" 
                         className="min-h-[100px]"
                         {...field} 
                         disabled={isLoading}
@@ -157,7 +157,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>Kategori</FormLabel>
                       <Select 
                         onValueChange={(value) => {
                           console.log('Category selected:', value)
@@ -168,7 +168,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={categories.length === 0 ? "Loading categories..." : "Select category"} />
+                            <SelectValue placeholder={categories.length === 0 ? "Memuat kategori..." : "Pilih kategori"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -189,9 +189,9 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   name="brand"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Brand</FormLabel>
+                      <FormLabel>Merek</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter brand name" {...field} disabled={isLoading} />
+                        <Input placeholder="Masukkan nama merek" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -204,9 +204,9 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                 name="tags"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tags</FormLabel>
+                    <FormLabel>Tag</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter tags separated by commas" {...field} disabled={isLoading} />
+                      <Input placeholder="Masukkan tag dipisahkan koma" {...field} disabled={isLoading} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -215,10 +215,10 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
             </CardContent>
           </Card>
 
-          {/* Pricing & Inventory */}
+          {/* Harga & Persediaan */}
           <Card>
             <CardHeader>
-              <CardTitle>Pricing & Inventory</CardTitle>
+              <CardTitle>Harga & Persediaan</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid gap-4 md:grid-cols-2">
@@ -227,7 +227,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Price (Rp)</FormLabel>
+                      <FormLabel>Harga (Rp)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -247,7 +247,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   name="comparePrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Compare Price (Rp)</FormLabel>
+                      <FormLabel>Harga Pembanding (Rp)</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -271,7 +271,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                     <FormItem>
                       <FormLabel>SKU</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter SKU" {...field} disabled={isLoading} />
+                        <Input placeholder="Masukkan SKU" {...field} disabled={isLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -283,7 +283,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                   name="stock"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Stock Quantity</FormLabel>
+                      <FormLabel>Jumlah Stok</FormLabel>
                       <FormControl>
                         <Input 
                           type="number" 
@@ -304,7 +304,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                 name="weight"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight (kg)</FormLabel>
+                    <FormLabel>Berat (kg)</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -321,7 +321,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
               />
 
               <div className="space-y-2">
-                <FormLabel>Dimensions (cm)</FormLabel>
+                <FormLabel>Dimensi (cm)</FormLabel>
                 <div className="grid gap-2 grid-cols-3">
                   <FormField
                     control={form.control}
@@ -331,7 +331,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="Length"
+                            placeholder="Panjang"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                             disabled={isLoading}
@@ -348,7 +348,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="Width"
+                            placeholder="Lebar"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                             disabled={isLoading}
@@ -365,7 +365,7 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
                         <FormControl>
                           <Input 
                             type="number" 
-                            placeholder="Height"
+                            placeholder="Tinggi"
                             {...field}
                             onChange={(e) => field.onChange(Number(e.target.value) || undefined)}
                             disabled={isLoading}
@@ -380,10 +380,10 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
           </Card>
         </div>
 
-        {/* Images */}
+        {/* Gambar */}
         <Card>
           <CardHeader>
-            <CardTitle>Product Images</CardTitle>
+            <CardTitle>Gambar Produk</CardTitle>
           </CardHeader>
           <CardContent>
             <FormField
@@ -406,10 +406,10 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
           </CardContent>
         </Card>
 
-        {/* Settings */}
+        {/* Pengaturan */}
         <Card>
           <CardHeader>
-            <CardTitle>Product Settings</CardTitle>
+            <CardTitle>Pengaturan Produk</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -418,9 +418,9 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Active</FormLabel>
+                    <FormLabel className="text-base">Aktif</FormLabel>
                     <div className="text-sm text-muted-foreground">
-                      Product will be visible to customers
+                      Produk akan terlihat oleh pelanggan
                     </div>
                   </div>
                   <FormControl>
@@ -440,9 +440,9 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Featured</FormLabel>
+                    <FormLabel className="text-base">Unggulan</FormLabel>
                     <div className="text-sm text-muted-foreground">
-                      Product will appear in featured sections
+                      Produk akan tampil di bagian unggulan
                     </div>
                   </div>
                   <FormControl>
@@ -458,13 +458,13 @@ export function ProductForm({ initialData, onSubmit, loading }: ProductFormProps
           </CardContent>
         </Card>
 
-        {/* Form Actions */}
+        {/* Aksi Form */}
         <div className="flex justify-end space-x-4">
           <Button type="button" variant="outline" disabled={isLoading}>
-            Cancel
+            Batal
           </Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Saving..." : initialData ? "Update Product" : "Create Product"}
+            {isLoading ? "Menyimpan..." : initialData ? "Perbarui Produk" : "Buat Produk"}
           </Button>
         </div>
       </form>

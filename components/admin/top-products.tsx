@@ -5,6 +5,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
+import { formatPriceCompact } from "@/lib/utils"
 
 interface Product {
   id: string
@@ -26,7 +27,7 @@ export function TopProducts({ products, loading }: TopProductsProps) {
     return (
       <Card className="col-span-3">
         <CardHeader>
-          <CardTitle>Top Products</CardTitle>
+          <CardTitle>Produk Teratas</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -52,10 +53,10 @@ export function TopProducts({ products, loading }: TopProductsProps) {
   return (
     <Card className="col-span-3">
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Top Products</CardTitle>
+        <CardTitle>Produk Teratas</CardTitle>
         <Button variant="ghost" size="sm" asChild>
           <Link href="/admin/products">
-            View all
+            Lihat semua
             <ArrowRight className="ml-1 h-4 w-4" />
           </Link>
         </Button>
@@ -63,7 +64,7 @@ export function TopProducts({ products, loading }: TopProductsProps) {
       <CardContent>
         <div className="space-y-4">
           {products.length === 0 ? (
-            <p className="text-muted-foreground text-center py-4">No product data available</p>
+            <p className="text-muted-foreground text-center py-4">Belum ada data produk</p>
           ) : (
             products.map((product, index) => (
               <div key={product.id} className="flex items-center space-x-4">
@@ -83,7 +84,7 @@ export function TopProducts({ products, loading }: TopProductsProps) {
                     {product.name}
                   </Link>
                   <p className="text-sm text-muted-foreground">
-                    Stock: {product.current_stock} units
+                    Stok: {product.current_stock} unit
                   </p>
                 </div>
                 <div className="text-right">
@@ -91,10 +92,10 @@ export function TopProducts({ products, loading }: TopProductsProps) {
                     <span className="text-sm font-bold text-primary">#{index + 1}</span>
                   </div>
                   <p className="font-medium">
-                    {product.total_sold} sold
+                    {product.total_sold} terjual
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Rp {product.total_revenue.toLocaleString('id-ID')}
+                    {formatPriceCompact(product.total_revenue)}
                   </p>
                 </div>
               </div>
